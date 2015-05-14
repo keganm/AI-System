@@ -4,6 +4,8 @@
 # Custom for Visual Studio
 *.cs     diff=csharp
 
+*.meta	export-ignore 
+
 # Standard to msysgit
 *.doc	 diff=astextplain
 *.DOC	 diff=astextplain
