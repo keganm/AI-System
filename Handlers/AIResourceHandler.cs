@@ -1,29 +1,41 @@
-﻿using UnityEngine;
-using System.Collections;
-
-
-/**
- * Handles AI Character interaction with Resources in environment
+﻿/**
+ * Artificial Intelligence System for Unity 3D
+ * Author: Kegan McGurk
  **/
-public class AIResourceHandler : MonoBehaviour {
-	public AIAwareness parentAwareness;
-	// Use this for initialization
-	void Start () {
-	}
+using UnityEngine;
+using System.Collections;
+/// <summary>
+/// Handles AI Character interaction with other AI in environment
+/// Works in a child Collision object
+/// </summary>
+public class AIResourceHandler : MonoBehaviour
+{
+		public AIPlayer parent;
 
-	void OnTriggerEnter(Collider other){
-		
-		if (!parentAwareness)
-			parentAwareness = this.GetComponentInParent<AIAwareness> ();
-
-				if (other.gameObject.layer == LayerMask.NameToLayer ("Resources"))
-						parentAwareness.AddResource (other);
-				
-				this.transform.GetComponentInParent<AIPlayer> ().StartRefill (other.gameObject);
+		public void Init (AIPlayer _parent)
+		{
+				parent = _parent;
 		}
 
-	void OnTriggerExit(Collider other){
-		
-		this.transform.GetComponentInParent<AIPlayer> ().EndRefill (other.gameObject);
+		/// <summary>
+		/// If collider is a resource send to AIAwareness
+		/// Call Player to start refill
+		/// </summary>
+		/// <param name="other">Other.</param>
+		void OnTriggerEnter (Collider other)
+		{
+				if (other.gameObject.layer == LayerMask.NameToLayer ("Resources"))
+						parent.awareness.AddResource (other);
+				
+				parent.StartRefill (other.gameObject);
+		}
+
+		/// <summary>
+		/// Let player it's no longer refilling
+		/// </summary>
+		/// <param name="other">Other.</param>
+		void OnTriggerExit (Collider other)
+		{
+				this.transform.GetComponentInParent<AIPlayer> ().EndRefill (other.gameObject);
 		}
 }

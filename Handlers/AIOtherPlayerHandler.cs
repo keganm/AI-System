@@ -1,29 +1,44 @@
-﻿using UnityEngine;
+﻿/**
+ * Artificial Intelligence System for Unity 3D
+ * Author: Kegan McGurk
+ **/
+using UnityEngine;
 using System.Collections;
 
-public class AIOtherPlayerHandler : MonoBehaviour {
-	public AIAwareness parentAwareness;
-	public int count;
-	// Use this for initialization
-	void Start () {
-	}
+public class AIOtherPlayerHandler : MonoBehaviour
+{
+		public AIPlayer parent;
+		//Count for debugging
+		public int count;
+	
+		public void Init (AIPlayer _parent)
+		{
+				parent = _parent;
+		}
 
-	void OnTriggerEnter(Collider other){
-		
-		if (!parentAwareness)
-			parentAwareness = this.GetComponentInParent<AIAwareness> ();
-
+		/// <summary>
+		/// Add player to awareness
+		/// </summary>
+		/// <param name="other">Other.</param>
+		void OnTriggerEnter (Collider other)
+		{
 				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
 						count++;
-						parentAwareness.AddPlayer (other);
+						parent.awareness.AddPlayer (other);
 				}
 				
 		}
 
-	void OnTriggerExit(Collider other){
+	
+		/// <summary>
+		/// Remove player to awareness
+		/// </summary>
+		/// <param name="other">Other.</param>
+		void OnTriggerExit (Collider other)
+		{
 				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
 						count--;
-						parentAwareness.RemovePlayer (other);
+						parent.awareness.RemovePlayer (other);
 				}
 		}
 }

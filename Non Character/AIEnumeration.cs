@@ -1,10 +1,7 @@
-﻿using UnityEngine;
+﻿/**
+ * Artificial Intelligence System for Unity 3D
+ * Author: Kegan McGurk
+ **/
+using UnityEngine;
 using System.Collections;
 
-public class AIEnumeration : MonoBehaviour {
-
-	public enum Tracking{Aimless, Searching, Refilling};
-
-	public enum ResourceType{Rest, Food, Entertainment, Companionship};
-
-}

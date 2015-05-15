@@ -1,32 +1,42 @@
-﻿using UnityEngine;
+﻿/**
+ * Artificial Intelligence System for Unity 3D
+ * Author: Kegan McGurk
+ **/
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class AIAwareness : MonoBehaviour {
+/// <summary>
+/// AI awareness.
+/// Manage what resources the AI knows about, can see and it's relation to other AI player
+/// </summary>
+public class AIAwareness : MonoBehaviour
+{
 
-	Dictionary<string, List<GameObject>> resourceDictionary= new Dictionary<string, List<GameObject>>(); 
-	List<GameObject> resourceList = new List<GameObject>();
-	public int playerProximityCount = 0;
+		Dictionary<string, List<GameObject>> resourceDictionary = new Dictionary<string, List<GameObject>> ();
+		public int playerProximityCount = 0;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
-	public List<GameObject> GetResourceList(string name){
-			if (resourceDictionary.ContainsKey (name))
+		/// <summary>
+		/// Gets the named resource list.
+		/// </summary>
+		/// <returns>The resource list.</returns>
+		/// <param name="name">resource</param>
+		public List<GameObject> GetResourceList (string name)
+		{
+				if (resourceDictionary.ContainsKey (name))
 						return resourceDictionary [name];
 				else
 						return new List<GameObject> ();
 		}
 
-	public List<GameObject> GetResourceList(List<string> names){
+		/// <summary>
+		/// Gets the list of named resource list.
+		/// </summary>
+		/// <returns>The resource list.</returns>
+		/// <param name="names">resource names</param>
+		public List<GameObject> GetResourceList (List<string> names)
+		{
 				List<GameObject> tmp = new List<GameObject> ();
 
 				for (int i = 0; i < names.Count; i++) {
@@ -37,7 +47,13 @@ public class AIAwareness : MonoBehaviour {
 				return tmp;
 		}
 
-	public bool CheckResourceList(GameObject resource, bool IsPriority){
+		/// <summary>
+		/// Checks to see if the AI knows about the resource or can see it
+		/// </summary>
+		/// <returns><c>true</c>, if resource list was checked, <c>false</c> otherwise.</returns>
+		/// <param name="resource">Resource.</param>
+		public bool CheckResourceList (GameObject resource, bool IsPriority)
+		{
 				if (resourceDictionary.ContainsKey (resource.tag) && IsPriority) {
 						foreach (GameObject res in resourceDictionary[resource.tag]) {
 								if (res == resource) {
@@ -54,22 +70,26 @@ public class AIAwareness : MonoBehaviour {
 				return false;
 		}
 
-	public void AddPlayer(Collider other){
-		//Debug.Log ("Adding Player");
+		public void AddPlayer (Collider other)
+		{
+				//Debug.Log ("Adding Player");
 				playerProximityCount++;
 		}
-	public void RemovePlayer(Collider other){
-		//Debug.Log ("Removing Player");
-				if(playerProximityCount > 0)
-				playerProximityCount--;
+
+		public void RemovePlayer (Collider other)
+		{
+				//Debug.Log ("Removing Player");
+				if (playerProximityCount > 0)
+						playerProximityCount--;
 		}
 
-	public void AddResource(Collider other){
-		if (other.gameObject == this.gameObject)
+		public void AddResource (Collider other)
+		{
+				if (other.gameObject == this.gameObject)
 						return;
-		string res = other.tag;
-		//Debug.Log ("Adding Resource: " + res);
-		if (!resourceDictionary.ContainsKey (res)) {
+				string res = other.tag;
+				//Debug.Log ("Adding Resource: " + res);
+				if (!resourceDictionary.ContainsKey (res)) {
 						resourceDictionary [res] = new List<GameObject> ();
 				}
 		
@@ -84,13 +104,14 @@ public class AIAwareness : MonoBehaviour {
 						resourceDictionary [res].Add (other.gameObject);
 		}
 	
-	void OnTriggerEnter(Collider other){
+		void OnTriggerEnter (Collider other)
+		{
 
 
-	}
+		}
 
+		void OnTriggerExit (Collider other)
+		{
 
-	void OnTriggerExit(Collider other){
-
-	}
+		}
 }

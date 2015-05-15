@@ -1,24 +1,34 @@
-﻿using UnityEngine;
+﻿/**
+ * Artificial Intelligence System for Unity 3D
+ * Author: Kegan McGurk
+ **/
+using UnityEngine;
 using System.Collections;
 
-public class AiNeed {
-	public string resource;
+/// <summary>
+/// Container for AI needs.
+/// </summary>
+public class AiNeed
+{
+		public string resource;
+		public float current;
+		public float lossRate;
+		public float regenRate;
+		public bool refilling = false;
+		public bool inNeed = false;
 
-	public float current;
-	public float lossRate;
-	public float regenRate;
-
-	public bool refilling = false;
-	public bool inNeed = false;
-
-	public AiNeed(string resourceTag, float init, float loss, float regen){
+		public AiNeed (string resourceTag, float init, float loss, float regen)
+		{
 				current = init;
 				resource = resourceTag;
 				lossRate = loss;
 				regenRate = regen;
 		}
-
-	public void UpdateNeed(){
+/// <summary>
+/// Updates the need regenerates or degenerates based on refilling.
+/// </summary>
+		public void UpdateNeed ()
+		{
 				if (refilling) {
 
 						if (current > 0)
@@ -26,7 +36,7 @@ public class AiNeed {
 						else
 								current = 0;
 
-						if(current <= 0)
+						if (current <= 0)
 								inNeed = false;
 
 				} else {
