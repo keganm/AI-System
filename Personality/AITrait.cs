@@ -10,15 +10,30 @@ using System.Collections;
 /// </summary>
 public class AITrait {
 	public AIEnumeration.TraitType type;
+	public string name;
 	public float value; //-1 to 1
+	public float increase;
 
 /// <summary>
 /// </summary>
 	// Use this for initialization
-	public AITrait(AIEnumeration.TraitType _type, float _val) {
-		type = _type;
-		value = _val;
+	public AITrait()
+	{
+	}
 
+	public AITrait(AIEnumeration.TraitType _type, string _name, float _val, float _inc) {
+		type = _type;
+		name = _name;
+		value = _val;
+		increase = _inc;
+	}
+
+	public void CopyTrait(AITrait original)
+	{
+		type = original.type;
+		name = original.name;
+		value = original.value;
+		increase = original.increase;
 	}
 	
 	// Update is called once per frame
@@ -26,24 +41,3 @@ public class AITrait {
 	
 	}
 }
-
-/**
- * 
- * Modify companionship behaviour to modify in both directions.
- * Dependent on Serialized personality traits.
- ******  Mind – Introverted or Extraverted
- ******  Energy – Intuitive or Observant
- ******  Nature – Thinking or Feeling
- ******  Tactics – Judging or Prospecting
- ******  Identity – Assertive or Turbulent
- *
- *
- *Maybe these instead
- *
-	/// Age
-	/// Aggression
-	/// Extraversion
-	/// Focus
-	/// Happiness
-	/// 
- **/

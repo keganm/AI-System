@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Artificial Intelligence System for Unity 3D
  * Author: Kegan McGurk
  * 
@@ -112,7 +112,7 @@ public class AIPlayer : MonoBehaviour
 		{
 				if (currentResources.Count == 0) {
 						//no resources are available make sure no needs are refilling and exit
-						foreach (AiNeed need in needManager.needList)
+						foreach (AINeed need in needManager.needList)
 								need.refilling = false;
 						return;
 				}
@@ -121,7 +121,7 @@ public class AIPlayer : MonoBehaviour
 						AIResource res = currentResource.GetComponent<AIResource> ();
 						
 						//Check availability of resources AI has connection with and determine whether need is refilling
-						foreach (AiNeed need in needManager.needList) {
+						foreach (AINeed need in needManager.needList) {
 								if (need.resource == currentResource.tag) {
 										needsResearch = false;
 					
@@ -175,7 +175,7 @@ public class AIPlayer : MonoBehaviour
 						return;
 
 				if (currentResources.Contains (other)) {
-						foreach (AiNeed need in needManager.needList) {
+						foreach (AINeed need in needManager.needList) {
 								if (other.tag == need.resource) {
 										need.refilling = false;
 								}

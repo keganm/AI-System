@@ -131,7 +131,7 @@ public class AIController : MonoBehaviour
 		void UpdateDebugText ()
 		{
 				debugText.text = "Player: " + aiPlayers [currentPlayer].name + "\n";
-				foreach (AiNeed need in aiPlayers[currentPlayer].GetComponent<AINeedManager>().needList) {
+				foreach (AINeed need in aiPlayers[currentPlayer].GetComponent<AINeedManager>().needList) {
 						debugText.text += need.resource + ": " + need.current;
 						if (need.inNeed)
 								debugText.text += " ~Needed";

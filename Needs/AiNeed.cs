@@ -8,7 +8,7 @@ using System.Collections;
 /// <summary>
 /// Container for AI needs.
 /// </summary>
-public class AiNeed
+public class AINeed
 {
 		public string resource;
 		public float current;
@@ -17,7 +17,11 @@ public class AiNeed
 		public bool refilling = false;
 		public bool inNeed = false;
 
-		public AiNeed (string resourceTag, float init, float loss, float regen)
+	public AINeed()
+	{
+
+		}
+		public AINeed (string resourceTag, float init, float loss, float regen)
 		{
 				current = init;
 				resource = resourceTag;
@@ -49,4 +53,18 @@ public class AiNeed
 								inNeed = true;
 				}
 		}
+
+	/// <summary>
+	/// Copies the original AIneed.
+	/// </summary>
+	/// <param name="original">Original Need.</param>
+	public void CopyNeed(AINeed original)
+	{
+		resource = original.resource;
+		current = original.current;
+		lossRate = original.lossRate;
+		regenRate = original.regenRate;
+		refilling = original.refilling;
+		inNeed = original.inNeed;
+	}
 }

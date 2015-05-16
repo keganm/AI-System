@@ -16,13 +16,50 @@ public class AITraitManager : MonoBehaviour
 		/// </summary>
 		void Start ()
 		{
-				for (int i = 0; i < AIEnumeration.TraitTypeCount; i++) {
-						float val = Random.value * 2f - 1f;
-						traits.Add (new AITrait ((AIEnumeration.TraitType)i, val));
+
+				foreach (KeyValuePair<AIEnumeration.TraitType, AITrait> _trait in AIInitialVariables.traitDictionary) {
+						AITrait t = new AITrait ();
+						t.CopyTrait (_trait.Value);
+						if (t.value == -1)
+								t.value = Random.value * 2f - 1f;
+						traits.Add (t);
 				}
 
+				//For testing purposes
 				foreach (AITrait t in traits) {
 						testVal.Add (t.value);
 				}
 		}
+
+		/// <summary>
+		/// Tests the reaction to another AI .
+		/// </summary>
+		/// <param name="otherAI">Other A.</param>
+		public AIEnumeration.Reaction TestReaction (AITraitManager otherAI)
+		{
+				AIEnumeration.Reaction reaction = AIEnumeration.Reaction.Neutral;
+
+				return reaction;
+		}
 }
+
+/**
+ * 
+ * Modify companionship behaviour to modify in both directions.
+ * Dependent on Serialized personality traits.
+ ******  Mind – Introverted or Extraverted
+ ******  Energy – Intuitive or Observant
+ ******  Nature – Thinking or Feeling
+ ******  Tactics – Judging or Prospecting
+ ******  Identity – Assertive or Turbulent
+ *
+ *
+ *Maybe these instead
+ *
+	/// Age
+	/// Aggression
+	/// Extraversion
+	/// Focus
+	/// Happiness
+	/// 
+ **/

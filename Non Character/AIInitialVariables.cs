@@ -1,39 +1,18 @@
-﻿/**
+/**
  * Artificial Intelligence System for Unity 3D
  * Author: Kegan McGurk
  **/
 using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
-/// <summary>
-/// AI initial variables.
-/// </summary>
-public static class AIInitialVariables
-{
-		//Needs
-		public static float foodLossRate = 0.0001f;
-		public static float foodRecoveryRate = 0.01f;
-		public static float food = 0f;
-		public static float restLossRate = 0.00015f;
-		public static float restRecoveryRate = 0.01f;
-		public static float rest = 0f;
-		public static float entertainmentLossRate = 0.00025f;
-		public static float entertainmentRecoveryRate = 0.01f;
-		public static float entertainment = 0f;
-		public static float companionshipLossRate = 0.00025f;
-		public static float companionshipRecoveryRate = 0.01f;
-		public static float companionship = 0f;
-
-
-		//Behaviours
-		public static float wanderIncrease = 0.01f;
-}
 
 
 /// <summary>
 /// Global enumerations for AI.
 /// </summary>
-public class AIEnumeration
+public static class AIEnumeration
 {
 	
 	public const int TrackingCount = 3;
@@ -41,8 +20,8 @@ public class AIEnumeration
 	{
 		Aimless,
 		Searching,
-		Refilling}
-	;
+		Refilling
+	};
 	
 	public const int ResourceTypeCount = 4;
 	public enum ResourceType
@@ -50,8 +29,8 @@ public class AIEnumeration
 		Rest,
 		Food,
 		Entertainment,
-		Companionship}
-	;
+		Companionship
+	};
 	
 	public const int CardinalDirectionCount = 6;
 	public enum CardinalDirection
@@ -59,8 +38,8 @@ public class AIEnumeration
 		North,
 		East,
 		South,
-		West}
-	;
+		West
+	};
 	
 	
 	public const int TraitTypeCount = 6;
@@ -72,5 +51,42 @@ public class AIEnumeration
 		Nature,
 		Tactics,
 		Identity
-	}
+	};
+	
+	public const int ReactionTypes = 3;
+	public enum Reaction
+	{
+		Negative,
+		Neutral,
+		Positive
+	};
+}
+
+
+/// <summary>
+/// AI initial variables.
+/// </summary>
+public static class AIInitialVariables
+{
+		//Needs
+		public static Dictionary<AIEnumeration.ResourceType, AINeed> needDictionary = new Dictionary<AIEnumeration.ResourceType, AINeed> (){
+				{AIEnumeration.ResourceType.Food, new AINeed("Food", 0f, 0.0001f, 0.01f)},
+				{AIEnumeration.ResourceType.Rest, new AINeed("Rest", 0f, 0.00015f, 0.01f)},
+				{AIEnumeration.ResourceType.Entertainment, new AINeed("Entertainment", 0f, 0.00025f, 0.01f)},
+				{AIEnumeration.ResourceType.Companionship, new AINeed("Companionship", 0f, 0.00025f, 0.01f)}
+		};
+
+		//Traits (-1f will cause random value between -1 to 1)
+		public static Dictionary<AIEnumeration.TraitType, AITrait> traitDictionary = new Dictionary<AIEnumeration.TraitType, AITrait> (){
+				{AIEnumeration.TraitType.Age, new AITrait(AIEnumeration.TraitType.Age, "Age", 0, 0.001f)},
+				{AIEnumeration.TraitType.Mind, new AITrait(AIEnumeration.TraitType.Mind, "Mind", -1f, 0f)},
+				{AIEnumeration.TraitType.Energy, new AITrait(AIEnumeration.TraitType.Energy, "Energy", -1f, 0f)},
+				{AIEnumeration.TraitType.Nature, new AITrait(AIEnumeration.TraitType.Nature, "Nature", -1f, 0f)},
+				{AIEnumeration.TraitType.Tactics, new AITrait(AIEnumeration.TraitType.Tactics, "Tactics", -1f, 0f)},
+				{AIEnumeration.TraitType.Identity, new AITrait(AIEnumeration.TraitType.Identity, "Identity", -1f, 0f)},
+		};
+
+
+		//Behaviours
+		public static float wanderIncrease = 0.01f;
 }
