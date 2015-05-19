@@ -78,7 +78,7 @@ public static class AIInitialVariables
 
 		//Traits (-1f will cause random value between -1 to 1)
 		public static Dictionary<AIEnumeration.TraitType, AITrait> traitDictionary = new Dictionary<AIEnumeration.TraitType, AITrait> (){
-				{AIEnumeration.TraitType.Age, new AITrait(AIEnumeration.TraitType.Age, "Age", 0, 0.001f)},
+				{AIEnumeration.TraitType.Age, new AITrait(AIEnumeration.TraitType.Age, "Age", 0, 0.00001f)},
 				{AIEnumeration.TraitType.Mind, new AITrait(AIEnumeration.TraitType.Mind, "Mind", -1f, 0f)},
 				{AIEnumeration.TraitType.Energy, new AITrait(AIEnumeration.TraitType.Energy, "Energy", -1f, 0f)},
 				{AIEnumeration.TraitType.Nature, new AITrait(AIEnumeration.TraitType.Nature, "Nature", -1f, 0f)},

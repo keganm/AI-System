@@ -160,6 +160,13 @@ public class AIPlayer : MonoBehaviour
 		/// <param name="collision">resource collision</param>
 		public void StartRefill (GameObject collision)
 		{
+		if (collision.name == "OtherPlayerCollision") {
+						AITraitManager otherAI = collision.GetComponentInParent<AITraitManager> ();
+						if (otherAI != null) {
+								traitManager.MergePersonalities (otherAI);
+						}
+				}
+			
 				if (!currentResources.Contains (collision))
 						currentResources.Add (collision);
 		}
