@@ -10,6 +10,8 @@ or a resource that they have visual contact with.
 
 One need is companionship which is available from other AI, and will not be remembered.
 
+Personalities of AI entities change when near other AI based partially on the current AIs Age and Identity
+Change will also be determined by the compatability between the two interacting AI.
 
 Future Implementations:
 Modify the movement mechanism to increase natural movement.
