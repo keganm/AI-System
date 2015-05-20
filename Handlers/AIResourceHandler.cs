@@ -10,16 +10,16 @@ using System.Collections;
 /// </summary>
 public class AIResourceHandler : MonoBehaviour
 {
-		public AIPlayer parent;
+		public AIEntity parent;
 
-		public void Init (AIPlayer _parent)
+		public void Init (AIEntity _parent)
 		{
 				parent = _parent;
 		}
 
 		/// <summary>
 		/// If collider is a resource send to AIAwareness
-		/// Call Player to start refill
+		/// Call Entity to start refill
 		/// </summary>
 		/// <param name="other">Other.</param>
 		void OnTriggerEnter (Collider other)
@@ -31,11 +31,11 @@ public class AIResourceHandler : MonoBehaviour
 		}
 
 		/// <summary>
-		/// Let player it's no longer refilling
+		/// Let entity it's no longer refilling
 		/// </summary>
 		/// <param name="other">Other.</param>
 		void OnTriggerExit (Collider other)
 		{
-				this.transform.GetComponentInParent<AIPlayer> ().EndRefill (other.gameObject);
+				this.transform.GetComponentInParent<AIEntity> ().EndRefill (other.gameObject);
 		}
 }

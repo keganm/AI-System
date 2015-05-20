@@ -22,13 +22,13 @@ public class AIController : MonoBehaviour
 	#endregion Testing
 
 		public GameObject centerMarker;
-		public List<GameObject> aiPlayers = new List<GameObject> ();
+		public List<GameObject> aiEntitys = new List<GameObject> ();
 		public GameObject debugpanel;
 		public GameObject buttonprefab;
-		public int currentPlayer = 0;
+		public int currentEntity = 0;
 
 		/// <summary>
-		/// Start this instance, setup gui, and connect to AI players.
+		/// Start this instance, setup gui, and connect to AI entitys.
 		/// </summary>
 		void Start ()
 		{
@@ -45,9 +45,9 @@ public class AIController : MonoBehaviour
 
 				for (int i = 0; i < this.transform.childCount; i++) {
 						if (this.transform.GetChild (i).gameObject.name.Contains ("AI"))
-								aiPlayers.Add (this.transform.GetChild (i).gameObject);
+								aiEntitys.Add (this.transform.GetChild (i).gameObject);
 				}
-				Debug.Log ("Found " + aiPlayers.Count + " AI Players");
+				Debug.Log ("Found " + aiEntitys.Count + " AI Entitys");
 
 				CreateUIMenu ();
 		}
@@ -59,7 +59,7 @@ public class AIController : MonoBehaviour
 		{
 				FindAIGroups ();
 				UpdateDebugText ();
-				MarkCurrentPlayer ();
+				MarkCurrentEntity ();
 		}
 
 		/// <summary>
@@ -75,8 +75,8 @@ public class AIController : MonoBehaviour
 				int largestGroup = 0;
 				int groupCount = 0;
 
-				foreach (GameObject player in aiPlayers) {
-						int c = player.GetComponent<AIAwareness> ().playerProximityCount;
+				foreach (GameObject entity in aiEntitys) {
+						int c = entity.GetComponent<AIAwareness> ().entityProximityCount;
 						if (c > largestGroup)
 								largestGroup = c;
 				}
@@ -88,11 +88,11 @@ public class AIController : MonoBehaviour
 						centerMarker.GetComponent<MeshRenderer> ().enabled = true;
 				}
 			
-				foreach (GameObject player in aiPlayers) {
-						int c = player.GetComponent<AIAwareness> ().playerProximityCount;
+				foreach (GameObject entity in aiEntitys) {
+						int c = entity.GetComponent<AIAwareness> ().entityProximityCount;
 						if (c == largestGroup) {
-								groupList.Add (player.transform);
-								position += player.transform.position;
+								groupList.Add (entity.transform);
+								position += entity.transform.position;
 								groupCount++;
 						}
 				}
@@ -103,13 +103,13 @@ public class AIController : MonoBehaviour
 		}
 
 		/// <summary>
-		/// Sets the current player.
+		/// Sets the current entity.
 		/// </summary>
-		/// <param name="player">Player</param>
-		void SetCurrentPlayer (int player)
+		/// <param name="entity">Entity</param>
+		void SetCurrentEntity (int entity)
 		{
-				Debug.Log ("Set Player to: " + player);
-				currentPlayer = player;
+				Debug.Log ("Set Entity to: " + entity);
+				currentEntity = entity;
 		
 				GameObject dropdown = canvas.transform.FindChild ("DropDownPanel").gameObject as GameObject;
 		
@@ -118,20 +118,20 @@ public class AIController : MonoBehaviour
 		}
 
 		/// <summary>
-		/// Debug overlay of the player selected through the GUI.
+		/// Debug overlay of the entity selected through the GUI.
 		/// </summary>
-		void MarkCurrentPlayer ()
+		void MarkCurrentEntity ()
 		{
-				Debug.DrawLine (aiPlayers [currentPlayer].transform.position, aiPlayers [currentPlayer].GetComponent<NavMeshAgent> ().destination);
+				Debug.DrawLine (aiEntitys [currentEntity].transform.position, aiEntitys [currentEntity].GetComponent<NavMeshAgent> ().destination);
 
-				Debug.DrawRay (aiPlayers [currentPlayer].transform.position, aiPlayers [currentPlayer].transform.right);
-				Debug.DrawRay (aiPlayers [currentPlayer].transform.position, aiPlayers [currentPlayer].transform.forward);
+				Debug.DrawRay (aiEntitys [currentEntity].transform.position, aiEntitys [currentEntity].transform.right);
+				Debug.DrawRay (aiEntitys [currentEntity].transform.position, aiEntitys [currentEntity].transform.forward);
 		}
 
 		void UpdateDebugText ()
 		{
-				debugText.text = "Player: " + aiPlayers [currentPlayer].name + "\n";
-				foreach (AINeed need in aiPlayers[currentPlayer].GetComponent<AINeedManager>().needList) {
+				debugText.text = "Entity: " + aiEntitys [currentEntity].name + "\n";
+				foreach (AINeed need in aiEntitys[currentEntity].GetComponent<AINeedManager>().needList) {
 						debugText.text += need.resource + ": " + need.current;
 						if (need.inNeed)
 								debugText.text += " ~Needed";
@@ -147,14 +147,14 @@ public class AIController : MonoBehaviour
 		void CreateUIMenu ()
 		{
 				RectTransform dropdown = canvas.transform.FindChild ("DropDownPanel") as RectTransform;
-				dropdown.sizeDelta = new Vector2 (dropdown.rect.width, (40 * aiPlayers.Count));
+				dropdown.sizeDelta = new Vector2 (dropdown.rect.width, (40 * aiEntitys.Count));
 
-				for (int i = 0; i < aiPlayers.Count; i++) {
+				for (int i = 0; i < aiEntitys.Count; i++) {
 						GameObject newbutton = GameObject.Instantiate<GameObject> (buttonprefab);
-						newbutton.GetComponentInChildren<Text> ().text = aiPlayers [i].name;
+						newbutton.GetComponentInChildren<Text> ().text = aiEntitys [i].name;
 						newbutton.transform.SetParent (dropdown);
 						int p = i;
-						newbutton.GetComponent<Button> ().onClick.AddListener (() => SetCurrentPlayer (p));
+						newbutton.GetComponent<Button> ().onClick.AddListener (() => SetCurrentEntity (p));
 				}
 		}
 		/// <summary>

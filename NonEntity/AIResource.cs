@@ -18,7 +18,7 @@ public class AIResource : MonoBehaviour
 		public float resourceConsumption = 0.01f;
 		public float resourceRegrowth = 0.01f;
 		public int resourceSlots = 4;
-		public int playerAccessCount = 0;
+		public int entityAccessCount = 0;
 		
 		//For changing resource to give visual feedback
 		Material mat;
@@ -35,7 +35,7 @@ public class AIResource : MonoBehaviour
 		/// </summary>
 		void Update ()
 		{
-				int playcount = playerAccessCount;
+				int playcount = entityAccessCount;
 				if (playcount > resourceSlots)
 						playcount = resourceSlots;
 		
@@ -58,31 +58,31 @@ public class AIResource : MonoBehaviour
 		/// <returns><c>true</c>, if available, <c>false</c> otherwise.</returns>
 		public bool ResourceAvailable ()
 		{
-				if (resourceAvailability > 0f && resourceSlots - playerAccessCount > 0)
+				if (resourceAvailability > 0f && resourceSlots - entityAccessCount > 0)
 						return true;
 
 				return false;
 		}
 
 		/// <summary>
-		/// Raises the playerAccessCount if AI entered
+		/// Raises the entityAccessCount if AI entered
 		/// </summary>
 		/// <param name="other">Collider</param>
 		void OnTriggerEnter (Collider other)
 		{
 				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
-						playerAccessCount++;
+						entityAccessCount++;
 				}
 		}
 	
 		/// <summary>
-		/// Decreases the playerAccessCount if AI exits
+		/// Decreases the entityAccessCount if AI exits
 		/// </summary>
 		/// <param name="other">Collider</param>
 		void OnTriggerExit (Collider other)
 		{
 				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
-						playerAccessCount--;
+						entityAccessCount--;
 				}
 		}
 }

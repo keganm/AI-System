@@ -5,40 +5,40 @@
 using UnityEngine;
 using System.Collections;
 
-public class AIOtherPlayerHandler : MonoBehaviour
+public class AIOtherEntityHandler : MonoBehaviour
 {
-		public AIPlayer parent;
+		public AIEntity parent;
 		//Count for debugging
 		public int count;
 	
-		public void Init (AIPlayer _parent)
+		public void Init (AIEntity _parent)
 		{
 				parent = _parent;
 		}
 
 		/// <summary>
-		/// Add player to awareness
+		/// Add entity to awareness
 		/// </summary>
 		/// <param name="other">Other.</param>
 		void OnTriggerEnter (Collider other)
 		{
 				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
 						count++;
-						parent.awareness.AddPlayer (other);
+						parent.awareness.AddEntity (other);
 				}
 				
 		}
 
 	
 		/// <summary>
-		/// Remove player to awareness
+		/// Remove entity to awareness
 		/// </summary>
 		/// <param name="other">Other.</param>
 		void OnTriggerExit (Collider other)
 		{
 				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
 						count--;
-						parent.awareness.RemovePlayer (other);
+						parent.awareness.RemoveEntity (other);
 				}
 		}
 }

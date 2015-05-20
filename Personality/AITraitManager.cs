@@ -49,12 +49,12 @@ public class AITraitManager : MonoBehaviour
 		/// <summary>
 		/// Tests the reaction to another AI .
 		/// </summary>
-		/// <param name="otherAI">Other AI player.</param>
+		/// <param name="otherAI">Other AI entity.</param>
 		public AIEnumeration.Reaction TestReaction (AITraitManager otherAI)
 		{
 				AIEnumeration.Reaction reaction = AIEnumeration.Reaction.Neutral;
 				
-				//Reaction probability determines reaction to other AI Player when requested
+				//Reaction probability determines reaction to other AI Entity when requested
 				float reactionProbability = 0f;
 		
 				foreach (KeyValuePair<AIEnumeration.TraitType, AITrait> _trait in traits) {
@@ -63,15 +63,13 @@ public class AITraitManager : MonoBehaviour
 								reactionProbability += (1 - (Mathf.Abs (otherAI.traits [_trait.Key].value - this.traits [_trait.Key].value)));
 				}
 
-				reactionProbability *= (1f / (float)traits.Count); //TODO:throw this to the top as a static if these aren't going to change
+				reactionProbability *= (1f / (float)traits.Count); //TODO:throw this to the top as a static if the counts aren't going to change
 
 				if (negativeThreshold - 1f >= reactionProbability)
 						reaction = AIEnumeration.Reaction.Negative;
 
 				if (reactionProbability > positiveThreshold)
 						reaction = AIEnumeration.Reaction.Positive;
-				
-				Debug.Log ("Reaction Was: " + reactionProbability);
 
 				return reaction;
 		}
@@ -81,35 +79,45 @@ public class AITraitManager : MonoBehaviour
 		/// Affectors (Age, older reduces adoption; Identity, lower reduces adoption)
 		/// MergeType; negative -> personality seperation
 		/// </summary>
-		/// <param name="mergeType">How the AI reacts initially</param>
-		/// <param name="otherAI">Other AI player</param>
+		/// <param name="otherAI">Other AI entity</param>
 		public void MergePersonalities (AITraitManager otherAI)
 		{
 				if (traits.Count < AIEnumeration.TraitTypeCount)
 						return;
 
-				AIEnumeration.Reaction mergeType = TestReaction (otherAI);
-				float ageScale = 0.001f;
-				float identityScale = 0.01f;
-
-				float ageFactor = traits [AIEnumeration.TraitType.Age].value * ageScale;
-				float identityFactor = (traits [AIEnumeration.TraitType.Identity].value * 0.5f + 0.5f) * identityScale;
-
-				float mergeScale = 1f;
-				if (mergeType == AIEnumeration.Reaction.Negative)
-						mergeScale *= -1f;
-				else if (mergeType == AIEnumeration.Reaction.Neutral)
-						mergeScale *= 0.5f;
-
-
-				float finalScale = (ageFactor + identityFactor) * mergeScale;
-
+				
+				float scale = GetPersonalityWeight (otherAI);
 				foreach (KeyValuePair<AIEnumeration.TraitType, AITrait> _trait in traits) {
 						if (_trait.Key != AIEnumeration.TraitType.Age) {
-								traits[_trait.Key].SetValue (traits[_trait.Key].value + ((otherAI.traits [_trait.Key].value - traits[_trait.Key].value) * finalScale));
+				traits[_trait.Key].SetValue (traits[_trait.Key].value + ((otherAI.traits [_trait.Key].value - traits[_trait.Key].value) * scale));
 
 						}
 				}
+		}
+
+	/// <summary>
+	/// Gets the personality weight, determines how much influence other AI have.
+	/// </summary>
+	/// <returns>The influence</returns>
+	/// <param name="otherAI">Other AI entity</param>
+	public float GetPersonalityWeight(AITraitManager otherAI)
+	{
+		AIEnumeration.Reaction mergeType = TestReaction (otherAI);
+		float ageScale = 0.001f;
+		float identityScale = 0.01f;
+		
+		float ageFactor = traits [AIEnumeration.TraitType.Age].value * ageScale;
+		float identityFactor = (traits [AIEnumeration.TraitType.Identity].value * 0.5f + 0.5f) * identityScale;
+		
+		float mergeScale = 1f;
+		if (mergeType == AIEnumeration.Reaction.Negative)
+			mergeScale *= -1f;
+		else if (mergeType == AIEnumeration.Reaction.Neutral)
+			mergeScale *= 0.5f;
+		
+		
+		float finalScale = (ageFactor + identityFactor) * mergeScale;
+		return finalScale;
 		}
 }
 

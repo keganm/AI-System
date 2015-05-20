@@ -9,13 +9,13 @@ using System.Collections.Generic;
 
 /// <summary>
 /// AI awareness.
-/// Manage what resources the AI knows about, can see and it's relation to other AI player
+/// Manage what resources the AI knows about, can see and it's relation to other AI entity
 /// </summary>
 public class AIAwareness : MonoBehaviour
 {
 
 		Dictionary<string, List<GameObject>> resourceDictionary = new Dictionary<string, List<GameObject>> ();
-		public int playerProximityCount = 0;
+		public int entityProximityCount = 0;
 
 		/// <summary>
 		/// Gets the named resource list.
@@ -70,17 +70,17 @@ public class AIAwareness : MonoBehaviour
 				return false;
 		}
 
-		public void AddPlayer (Collider other)
+		public void AddEntity (Collider other)
 		{
-				//Debug.Log ("Adding Player");
-				playerProximityCount++;
+				//Debug.Log ("Adding Entity");
+				entityProximityCount++;
 		}
 
-		public void RemovePlayer (Collider other)
+		public void RemoveEntity (Collider other)
 		{
-				//Debug.Log ("Removing Player");
-				if (playerProximityCount > 0)
-						playerProximityCount--;
+				//Debug.Log ("Removing Entity");
+				if (entityProximityCount > 0)
+						entityProximityCount--;
 		}
 
 		public void AddResource (Collider other)

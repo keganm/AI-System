@@ -77,7 +77,7 @@ public class AIResourceTarget : MonoBehaviour
 		/// <param name="target">Target to check.</param>
 		bool SightCheckTarget (GameObject target)
 		{
-				bool canSee = this.GetComponent<AIPlayer> ().currentResources.Contains (target);
+				bool canSee = this.GetComponent<AIEntity> ().currentResources.Contains (target);
 				if (!canSee)
 						canSee = CheckLineOfSite (target);
 

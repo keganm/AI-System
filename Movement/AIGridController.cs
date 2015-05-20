@@ -50,7 +50,7 @@ public class AIGridController : MonoBehaviour
 
 		/// <summary>
 		/// Builds the gridComponents.
-		/// TODO: Unify here, and pass grid components down to AI players
+		/// TODO: Unify here, and pass grid components down to AI entitys
 		/// </summary>
 		/// <param name="verticies">Verticies from navMesh.</param>
 		public void BuildGrid (Vector3[] verticies)

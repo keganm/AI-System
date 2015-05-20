@@ -12,10 +12,10 @@ using System.Collections.Generic;
 using System;
 
 /// <summary>
-/// AI player.
+/// AI entity.
 /// Primary class to be attached to AI entity
 /// </summary>
-public class AIPlayer : MonoBehaviour
+public class AIEntity : MonoBehaviour
 {
 		//Classes will be added automatically
 	#region SubClassComponents
@@ -26,7 +26,7 @@ public class AIPlayer : MonoBehaviour
 		public AIGridController gridController;
 		public AITraitManager traitManager;
 		AIResourceHandler resourceHandler;
-		AIOtherPlayerHandler otherPlayerHandler;
+		AIOtherEntityHandler otherEntityHandler;
 	#endregion SubClassComponents
 
 
@@ -58,12 +58,12 @@ public class AIPlayer : MonoBehaviour
 
 				//Find and connect to collision handlers
 				resourceHandler = this.transform.GetComponentInChildren<AIResourceHandler> ();
-				otherPlayerHandler = this.transform.GetComponentInChildren<AIOtherPlayerHandler> ();
+				otherEntityHandler = this.transform.GetComponentInChildren<AIOtherEntityHandler> ();
 				
 				if (resourceHandler)
 						resourceHandler.Init (this);
-				if (otherPlayerHandler)
-						otherPlayerHandler.Init (this);
+				if (otherEntityHandler)
+						otherEntityHandler.Init (this);
 
 		
 				ResetInitialVariables ();
@@ -160,7 +160,7 @@ public class AIPlayer : MonoBehaviour
 		/// <param name="collision">resource collision</param>
 		public void StartRefill (GameObject collision)
 		{
-		if (collision.name == "OtherPlayerCollision") {
+		if (collision.name == "OtherEntityCollision") {
 						AITraitManager otherAI = collision.GetComponentInParent<AITraitManager> ();
 						if (otherAI != null) {
 								traitManager.MergePersonalities (otherAI);
@@ -189,8 +189,15 @@ public class AIPlayer : MonoBehaviour
 						}
 						currentResources.Remove (other);
 				}
+		}
 
+	public void AddNewEntity(GameObject entity)
+	{
 
+		}
+
+	public void RemoveEntity(GameObject entity)
+	{
 
 		}
 
