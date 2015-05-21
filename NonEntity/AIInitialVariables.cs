@@ -89,4 +89,10 @@ public static class AIInitialVariables
 
 		//Behaviours
 		public static float wanderIncrease = 0.01f;
+
+		//Sight test variables
+	
+		public static float sweepTestResolution = 0.2f;
+		public static float minSweepTest = -0.5f;
+		public static float maxSweepTest = 0.5f;
 }

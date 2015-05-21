@@ -15,6 +15,8 @@ public class AIAwareness : MonoBehaviour
 {
 
 		Dictionary<string, List<GameObject>> resourceDictionary = new Dictionary<string, List<GameObject>> ();
+		
+	public List<AIEntity> entityList = new List<AIEntity> ();
 		public int entityProximityCount = 0;
 
 		/// <summary>
@@ -72,8 +74,19 @@ public class AIAwareness : MonoBehaviour
 
 		public void AddEntity (Collider other)
 		{
+		AIEntity otherAI = other.transform.GetComponentInParent<AIEntity>();
+		if (otherAI == null)
+			return;
 				//Debug.Log ("Adding Entity");
 				entityProximityCount++;
+
+		bool alreadyExists = false;
+		for (int i = 0; i < entityList.Count; i++) {
+			if (entityList [i] == otherAI)
+								return;
+				}
+		if (!alreadyExists)
+			entityList.Add (otherAI);
 		}
 
 		public void RemoveEntity (Collider other)
@@ -81,7 +94,15 @@ public class AIAwareness : MonoBehaviour
 				//Debug.Log ("Removing Entity");
 				if (entityProximityCount > 0)
 						entityProximityCount--;
+				
+				for (int i = 0; i < entityList.Count; i++) {
+						if (entityList [i].name == other.gameObject.name) {
+								entityList.RemoveAt (i);
+								return;
+						}
+				}
 		}
+
 
 		public void AddResource (Collider other)
 		{

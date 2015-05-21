@@ -22,9 +22,13 @@ public class AIOtherEntityHandler : MonoBehaviour
 		/// <param name="other">Other.</param>
 		void OnTriggerEnter (Collider other)
 		{
-				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
+				if (other.gameObject.layer != LayerMask.NameToLayer ("AI"))
+						return;
+				AIEntity testEntity = other.GetComponentInParent<AIEntity> ();
+				if (testEntity != null) {
 						count++;
 						parent.awareness.AddEntity (other);
+						parent.AddNewEntity (other.gameObject);
 				}
 				
 		}
@@ -36,9 +40,13 @@ public class AIOtherEntityHandler : MonoBehaviour
 		/// <param name="other">Other.</param>
 		void OnTriggerExit (Collider other)
 		{
-				if (other.gameObject.layer == LayerMask.NameToLayer ("AI")) {
+				if (other.gameObject.layer != LayerMask.NameToLayer ("AI"))
+						return;
+				AIEntity testEntity = other.GetComponentInParent<AIEntity> ();
+				if (testEntity != null) {
 						count--;
 						parent.awareness.RemoveEntity (other);
+						parent.RemoveEntity (other.gameObject);
 				}
 		}
 }

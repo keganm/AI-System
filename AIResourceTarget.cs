@@ -17,6 +17,10 @@ public class AIResourceTarget : MonoBehaviour
 		public int waitTime = 100;
 		public List<GameObject>resourceTargets = new List<GameObject> ();
 
+		static float sweepTestResolution = AIInitialVariables.sweepTestResolution;
+		static float minSweepTest = AIInitialVariables.minSweepTest;
+		static float maxSweepTest = AIInitialVariables.maxSweepTest;
+
 
 		// Use this for initialization
 		void Start ()
@@ -160,12 +164,11 @@ public class AIResourceTarget : MonoBehaviour
 
 						tmp = SortListByDistance (tmp);
 
-						RaycastHit hit;
 						float destinationDistance = Vector3.Distance (this.transform.position, nav.destination) - 0.0001f;
-
+			RaycastHit hit;
 						for (int i = 0; i < tmp.Count; i++) {
 								if (SightCheckTarget (tmp [i]) && tmp [i].transform.parent.gameObject != this.gameObject) {
-										if (Physics.Raycast (this.transform.position, tmp [i].transform.position - this.transform.position, out hit, destinationDistance)) {
+										if (Physics.Raycast(this.transform.position,tmp[i].transform.position - this.transform.position,out hit,destinationDistance)) {
 
 												if (tmp [i] != currentTarget) {
 														if (nav.SetDestination (tmp [i].transform.position + (Random.insideUnitSphere * 0.1f))) {
@@ -295,13 +298,76 @@ public class AIResourceTarget : MonoBehaviour
 		/// </summary>
 		/// <returns><c>true</c>, if line of site was checked, <c>false</c> otherwise.</returns>
 		/// <param name="resource">Gameobject to test</param>
+		public bool CheckLineOfSite(GameObject _target)
+		{
+			return CheckLineOfSite (_target, -1);
+		}
+		public bool CheckLineOfSite(GameObject _target, float _maxDistance)
+		{
+			bool hitTest;
+			bool sightContact = false;
+			RaycastHit hit;
+			Ray r = new Ray(this.transform.position, _target.transform.position - this.transform.position);
+			
+			float offset = minSweepTest;
+			float startDirection = r.direction.x;
+			
+			
+			while(offset <= maxSweepTest){
+				r.direction = new Vector3(startDirection + offset,r.direction.y,r.direction.z);
+				//For Testing
+				Debug.DrawRay (r.origin,r.direction);
+				
+				
+				if(_maxDistance == -1)
+					hitTest = Physics.Raycast (r, out hit);
+				else
+					hitTest = Physics.Raycast(r, out hit, _maxDistance);
+				
+				if (hitTest) {
+					if(hit.collider.gameObject.name == _target.name){
+						return true;
+					}
+				}
+				offset += sweepTestResolution;
+			}
+			return sightContact;
+		}
+	/*
 		public bool CheckLineOfSite (GameObject resource)
 		{
-				RaycastHit hit;
+//				Vector3 minPositionCheck = resource.transform.position.x 
+		Ray r = new Ray (this.transform.position, resource.transform.position - this.transform.position);
+		float resolution = 1f/50f;
+		float startY = r.direction.y - 0.5f;
+		float endY = r.direction.y + 0.5f;
+		float currentY = startY;
+		RaycastHit hit;
+
+		while (currentY <= endY) {
+
+			r = new Ray(this.transform.position,new Vector3(r.direction.x, currentY, r.direction.z));
+			//for debug
+			if(this.gameObject.name == "AI 0")
+				Debug.DrawRay(r.origin,r.direction);
+
+			if(Physics.Raycast(r, out hit, 3))
+			{
+
+				if(hit.collider.gameObject == resource)
+					return true;
+			}
+
+			currentY += resolution;
+
+				}
+		return false;
+
 				if (Physics.Raycast (this.transform.position, resource.transform.position - this.transform.position, out hit, 3)) {
 						if (hit.collider.gameObject == resource)
 								return true;
 				}
 				return false;
 		}
+		*/
 }
