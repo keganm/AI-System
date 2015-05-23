@@ -13,11 +13,11 @@ using System.Collections.Generic;
 /// </summary>
 public class AIAwareness : MonoBehaviour
 {
-
 		Dictionary<string, List<GameObject>> resourceDictionary = new Dictionary<string, List<GameObject>> ();
 		
 	public List<AIEntity> entityList = new List<AIEntity> ();
 		public int entityProximityCount = 0;
+
 
 		/// <summary>
 		/// Gets the named resource list.

@@ -22,7 +22,7 @@ public class AIEntity : MonoBehaviour
 		public AIMovement movement;
 		public AIAwareness awareness;
 		public AINeedManager needManager;
-		public AIResourceTarget resourceTarget;
+		public AIResourceManager resourceManager;
 		public AIGridController gridController;
 		public AITraitManager traitManager;
 		AIResourceHandler resourceHandler;
@@ -44,17 +44,18 @@ public class AIEntity : MonoBehaviour
 		/// </summary>
 		void Start ()
 		{
+
 				//Create or connect to Main sub classes
 				needManager = GetOrAddComponent<AINeedManager> ();
 				movement = GetOrAddComponent<AIMovement> ();
 				awareness = GetOrAddComponent <AIAwareness> ();
-				resourceTarget = GetOrAddComponent<AIResourceTarget> ();
+				resourceManager = GetOrAddComponent<AIResourceManager> ();
 				gridController = GetOrAddComponent<AIGridController> ();
 				traitManager = GetOrAddComponent<AITraitManager> ();
 
 				
 				//Pass ResourceTarget and GridController to AIMovement
-				movement.Init (resourceTarget, gridController);
+				movement.Init (resourceManager, gridController);
 
 				//Find and connect to collision handlers
 				resourceHandler = this.transform.GetComponentInChildren<AIResourceHandler> ();
@@ -122,7 +123,7 @@ public class AIEntity : MonoBehaviour
 						
 						//Check availability of resources AI has connection with and determine whether need is refilling
 						foreach (AINeed need in needManager.needList) {
-								if (need.resource == currentResource.tag) {
+								if (need.resource == currentResource.tag && need.inNeed) {
 										needsResearch = false;
 					
 										if (res.ResourceAvailable ()) {
@@ -149,7 +150,8 @@ public class AIEntity : MonoBehaviour
 				needManager.Update ();	
 
 				if (needManager.neededResources.Count > 0) {
-						resourceTarget.SearchForResource (needManager.neededResources, needsResearch);
+						//resourceManager.SearchForResource (needManager, needsResearch);
+			//resourceManager.BuildResourceTargets();
 				}
 		}
 

@@ -17,10 +17,11 @@ public class AINeed
 		public bool refilling = false;
 		public bool inNeed = false;
 
-	public AINeed()
-	{
+		public AINeed ()
+		{
 
 		}
+
 		public AINeed (string resourceTag, float init, float loss, float regen)
 		{
 				current = init;
@@ -31,7 +32,7 @@ public class AINeed
 /// <summary>
 /// Updates the need regenerates or degenerates based on refilling.
 /// </summary>
-		public void UpdateNeed ()
+		public bool UpdateNeed ()
 		{
 				if (refilling) {
 
@@ -43,28 +44,37 @@ public class AINeed
 						if (current <= 0)
 								inNeed = false;
 
+						return false;
+
 				} else {
+						bool newneed = false;
 						if (current < 1)
 								current += lossRate;
 						else
 								current = 1;
 
-						if (current >= 1)
+						if (current >= 1) {
+								if (!inNeed)
+										newneed = true;
 								inNeed = true;
+								current = 1;
+						}
+
+						return newneed;
 				}
 		}
 
-	/// <summary>
-	/// Copies the original AIneed.
-	/// </summary>
-	/// <param name="original">Original Need.</param>
-	public void CopyNeed(AINeed original)
-	{
-		resource = original.resource;
-		current = original.current;
-		lossRate = original.lossRate;
-		regenRate = original.regenRate;
-		refilling = original.refilling;
-		inNeed = original.inNeed;
-	}
+		/// <summary>
+		/// Copies the original AIneed.
+		/// </summary>
+		/// <param name="original">Original Need.</param>
+		public void CopyNeed (AINeed original)
+		{
+				resource = original.resource;
+				current = original.current;
+				lossRate = original.lossRate;
+				regenRate = original.regenRate;
+				refilling = original.refilling;
+				inNeed = original.inNeed;
+		}
 }

@@ -15,6 +15,9 @@ public class AINeedManager : MonoBehaviour
 
 		public List<AINeed> needList = new List<AINeed> ();
 		public List<string> neededResources = new List<string> ();
+		public float[] neededValues;
+	
+		AIResourceManager resourceManager;
 
 		public AINeedManager ()
 		{
@@ -27,6 +30,8 @@ public class AINeedManager : MonoBehaviour
 		/// </summary>
 		public void Reset ()
 		{	
+		
+				resourceManager = this.GetComponent<AIResourceManager> ();
 				neededResources.Clear ();
 				needList.Clear ();
 
@@ -41,6 +46,28 @@ public class AINeedManager : MonoBehaviour
 						n.CopyNeed (_need.Value);
 						needList.Add (n);
 				}
+				neededValues = new float[needList.Count];
+		}
+
+		/// <summary>
+		/// Sets the arrays to needs values and names
+		/// </summary>
+		/// <returns><c>true</c>, if needList isn't empty, <c>false</c> otherwise.</returns>
+		/// <param name="_needValues">_need values.</param>
+		/// <param name="_needResources">_need resources.</param>
+		public bool GetNeededResources(ref float[] _needValues, ref string[] _needResources)
+		{
+			if (needList.Count == 0)
+						return false;
+
+			_needValues = new float[needList.Count];
+			_needResources = new string[needList.Count];
+			for (int i = 0; i < needList.Count; i++) {
+				_needValues[i] = needList[i].current;
+				_needResources[i] = needList[i].resource;
+			}
+
+			return true;	
 		}
 
 		/// <summary>
@@ -49,7 +76,8 @@ public class AINeedManager : MonoBehaviour
 		public void Update ()
 		{
 				foreach (AINeed need in needList) {
-						need.UpdateNeed ();
+						if(need.UpdateNeed ())
+							resourceManager.BuildResourceTargets();
 
 						//Add need to needed list or remove it
 						if (need.inNeed) {

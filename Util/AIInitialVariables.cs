@@ -73,7 +73,7 @@ public static class AIInitialVariables
 				{AIEnumeration.ResourceType.Food, new AINeed("Food", 0f, 0.0001f, 0.01f)},
 				{AIEnumeration.ResourceType.Rest, new AINeed("Rest", 0f, 0.00015f, 0.01f)},
 				{AIEnumeration.ResourceType.Entertainment, new AINeed("Entertainment", 0f, 0.00025f, 0.01f)},
-				{AIEnumeration.ResourceType.Companionship, new AINeed("Companionship", 0f, 0.00025f, 0.01f)}
+				{AIEnumeration.ResourceType.Companionship, new AINeed("Companionship", 0f, 0.0002f, 0.01f)}
 		};
 
 		//Traits (-1f will cause random value between -1 to 1)

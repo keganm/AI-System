@@ -7,26 +7,48 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public class AIResourceTarget : MonoBehaviour
+public class AIResourceManager : MonoBehaviour
 {
+		public struct GameObjectDistance
+		{
+				public GameObject gameObject;
+				public float distance;
+
+				public GameObjectDistance (GameObject _gameObject, float _distance)
+				{
+						gameObject = _gameObject;
+						distance = _distance;
+				}
+		
+				public override string ToString ()
+				{
+						return (string.Format ("{0},{1}", gameObject.name, distance));
+				}
+		}
+
 		NavMeshAgent nav;
 		AIMovement movement;
+		AIAwareness awareness;
+		AINeedManager needManager;
 		public GameObject currentTarget;
+		public string targetNeed = "";
+		public string targetResource = "";
 		public bool isWaiting = false;
 		int wait;
 		public int waitTime = 100;
 		public List<GameObject>resourceTargets = new List<GameObject> ();
-
 		static float sweepTestResolution = AIInitialVariables.sweepTestResolution;
 		static float minSweepTest = AIInitialVariables.minSweepTest;
 		static float maxSweepTest = AIInitialVariables.maxSweepTest;
 
 
 		// Use this for initialization
-		void Start ()
+		void Awake ()
 		{
 				nav = this.GetComponent<NavMeshAgent> ();
 				movement = this.GetComponent<AIMovement> ();
+				awareness = this.GetComponent<AIAwareness> ();
+				needManager = this.GetComponent<AINeedManager> ();
 		}
 	
 		// Update is called once per frame
@@ -62,6 +84,17 @@ public class AIResourceTarget : MonoBehaviour
 						}
 				}
 
+				if (targetNeed == AIInitialVariables.needDictionary [AIEnumeration.ResourceType.Companionship].resource)
+						nav.SetDestination (currentTarget.transform.position);
+
+				if (!needManager.neededResources.Contains (targetNeed)) {
+						currentTarget = null;
+						targetNeed = "";
+						targetResource = "";
+						if(needManager.neededResources.Count > 0)
+							BuildResourceTargets();
+				}
+				
 		}
 
 	
@@ -105,6 +138,8 @@ public class AIResourceTarget : MonoBehaviour
 		/// </summary>
 		void RetargetResource ()
 		{
+		BuildResourceTargets ();
+		return;
 				if (nav.SetDestination (resourceTargets [0].transform.position)) {
 						currentTarget = resourceTargets [0];
 						return;
@@ -125,17 +160,80 @@ public class AIResourceTarget : MonoBehaviour
 				RetargetResource ();
 		}
 
+		public bool BuildResourceTargets ()
+		{
+				float[] needValues = new float[needManager.needList.Count];
+				string[] needResources = new string[needManager.needList.Count];
+				int targetNeedIndex = -1;
+				targetNeed = "";
+				float targetNeedValue = -1f;
+
+				if (!needManager.GetNeededResources (ref needValues, ref needResources)) {
+						Debug.Log ("Error getting resources");
+						return false;
+				}
+				if (!AIProbabilitySolver.GetResultIndex (ref targetNeedIndex, ref targetNeedValue, needValues)) {
+						Debug.Log ("Error findind resultindex");
+						return false;
+				}
+
+				targetNeed = needResources [targetNeedIndex];
+
+				//TODO: add alternate behaviour here
+
+				resourceTargets.Clear ();
+
+				resourceTargets = LookForResource (targetNeed);
+				resourceTargets.AddRange (awareness.GetResourceList (targetNeed));
+
+				if (resourceTargets.Count == 0) {
+						Debug.Log ("Didn't find any targets for the resource");
+						movement.trackingState = AIEnumeration.Tracking.Aimless;
+						return false;
+				}
+
+				float[] gameobjectDistances = GetGameObjectDistanceList (resourceTargets).ToArray ();
+				int targetResourceIndex = -1;
+				float targetResourceValue = -1f;
+				if (!AIProbabilitySolver.GetResultIndex (ref targetResourceIndex, ref targetResourceValue, gameobjectDistances, true)) {
+						Debug.Log ("Error Getting resource target");
+						return false;
+				}
+				targetResource = resourceTargets [targetResourceIndex].transform.parent.name;
+				Debug.Log ("Target Found: " + targetResource);
+				currentTarget = resourceTargets [targetResourceIndex];
+				nav.SetDestination (currentTarget.transform.position + (Random.insideUnitSphere * currentTarget.GetComponent<Collider> ().bounds.size.magnitude * 0.25f));
+
+				return true;
+		}
+
+
 
 		/// <summary>
 		/// Searches for resource Targets.
 		/// </summary>
 		/// <param name="resources">Resources.</param>
 		/// <param name="redoSearch">If set to <c>true</c> redo search.</param>
-		public void SearchForResource (List<string> resources, bool redoSearch)
+		public void SearchForResource (AINeedManager _needManager, bool redoSearch)
 		{
 				if (isWaiting)
 						return;
 
+				//Testing probability remove here to marked comment line
+		
+				float[] needValues = new float[_needManager.needList.Count];
+				string[] needs = new string[_needManager.needList.Count];
+				string n;
+				if (_needManager.GetNeededResources (ref needValues, ref needs)) {
+						int chosen = -1;
+						float topValue = 0f;
+						if (AIProbabilitySolver.GetResultIndex (ref chosen, ref topValue, needValues))
+								n = needs [chosen];
+						//Debug.Log(needs[chosen] + " value: " + topValue);
+				}
+
+				//------------------------------------Remove to here
+				List<string> resources = _needManager.neededResources;
 				if (resourceTargets.Count == 0 || redoSearch) {
 						resourceTargets.Clear ();
 
@@ -165,10 +263,10 @@ public class AIResourceTarget : MonoBehaviour
 						tmp = SortListByDistance (tmp);
 
 						float destinationDistance = Vector3.Distance (this.transform.position, nav.destination) - 0.0001f;
-			RaycastHit hit;
+						RaycastHit hit;
 						for (int i = 0; i < tmp.Count; i++) {
 								if (SightCheckTarget (tmp [i]) && tmp [i].transform.parent.gameObject != this.gameObject) {
-										if (Physics.Raycast(this.transform.position,tmp[i].transform.position - this.transform.position,out hit,destinationDistance)) {
+										if (Physics.Raycast (this.transform.position, tmp [i].transform.position - this.transform.position, out hit, destinationDistance)) {
 
 												if (tmp [i] != currentTarget) {
 														if (nav.SetDestination (tmp [i].transform.position + (Random.insideUnitSphere * 0.1f))) {
@@ -190,19 +288,33 @@ public class AIResourceTarget : MonoBehaviour
 		/// <summary>
 		/// Looks for resources using Line of site
 		/// </summary>
-		/// <returns>The for resources.</returns>
+		/// <returns>List of resources that AI can see.</returns>
 		/// <param name="names">Resource names</param>
 		public List<GameObject> LookForResources (List<string> names)
 		{
 				List<GameObject> toReturn = new List<GameObject> ();
 
 				for (int i = 0; i < names.Count; i++) {
-						GameObject[] tmp = GameObject.FindGameObjectsWithTag (names [i]);
 
-						foreach (GameObject ret in tmp) {
-								if (CheckLineOfSite (ret))
-										toReturn.Add (ret);
-						}
+						toReturn.AddRange (LookForResource (names [i]));
+				}
+
+				return toReturn;
+		}
+	
+		/// <summary>
+		/// Looks for particular resource using Line of site
+		/// </summary>
+		/// <returns>List of resources that AI can see.</returns>
+		/// <param name="names">Resource name</param>
+		public List<GameObject> LookForResource (string name)
+		{
+				List<GameObject> toReturn = new List<GameObject> ();
+
+				GameObject[] tmp = GameObject.FindGameObjectsWithTag (name);
+				foreach (GameObject res in tmp) {
+						if (CheckLineOfSite (res))
+								toReturn.Add (res);
 				}
 
 				return toReturn;
@@ -215,6 +327,10 @@ public class AIResourceTarget : MonoBehaviour
 		{
 				resourceTargets.Clear ();
 		}
+	
+		/////////////////////////////////////////////////////////////////////////////////////////
+		//	Utilities
+		/////////////////////////////////////////////////////////////////////////////////////////
 
 		/// <summary>
 		/// Sorts the resourceTargets by navmesh distance.
@@ -249,6 +365,22 @@ public class AIResourceTarget : MonoBehaviour
 				}
 
 				return tempList;
+		}
+
+		/// <summary>
+		/// Gets a list of distances to the gameobjects.
+		/// </summary>
+		/// <returns>The list of distances.</returns>
+		/// <param name="gameobjects">Gameobjects to test.</param>
+		public List<float> GetGameObjectDistanceList (List<GameObject> gameobjects)
+		{
+				List<float> toReturn = new List<float> ();
+
+				for (int i = 0; i < gameobjects.Count; i++) {
+						toReturn.Add (TargetDistance (gameobjects [i].transform.position));
+				}
+
+				return toReturn;
 		}
 				
 		/// <summary>
@@ -298,42 +430,43 @@ public class AIResourceTarget : MonoBehaviour
 		/// </summary>
 		/// <returns><c>true</c>, if line of site was checked, <c>false</c> otherwise.</returns>
 		/// <param name="resource">Gameobject to test</param>
-		public bool CheckLineOfSite(GameObject _target)
+		public bool CheckLineOfSite (GameObject _target)
 		{
-			return CheckLineOfSite (_target, -1);
+				return CheckLineOfSite (_target, -1);
 		}
-		public bool CheckLineOfSite(GameObject _target, float _maxDistance)
+
+		public bool CheckLineOfSite (GameObject _target, float _maxDistance)
 		{
-			bool hitTest;
-			bool sightContact = false;
-			RaycastHit hit;
-			Ray r = new Ray(this.transform.position, _target.transform.position - this.transform.position);
+				bool hitTest;
+				bool sightContact = false;
+				RaycastHit hit;
+				Ray r = new Ray (this.transform.position, _target.transform.position - this.transform.position);
 			
-			float offset = minSweepTest;
-			float startDirection = r.direction.x;
+				float offset = minSweepTest;
+				float startDirection = r.direction.x;
 			
 			
-			while(offset <= maxSweepTest){
-				r.direction = new Vector3(startDirection + offset,r.direction.y,r.direction.z);
-				//For Testing
-				Debug.DrawRay (r.origin,r.direction);
+				while (offset <= maxSweepTest) {
+						r.direction = new Vector3 (startDirection + offset, r.direction.y, r.direction.z);
+						//For Testing
+						Debug.DrawRay (r.origin, r.direction);
 				
 				
-				if(_maxDistance == -1)
-					hitTest = Physics.Raycast (r, out hit);
-				else
-					hitTest = Physics.Raycast(r, out hit, _maxDistance);
+						if (_maxDistance == -1)
+								hitTest = Physics.Raycast (r, out hit);
+						else
+								hitTest = Physics.Raycast (r, out hit, _maxDistance);
 				
-				if (hitTest) {
-					if(hit.collider.gameObject.name == _target.name){
-						return true;
-					}
+						if (hitTest) {
+								if (hit.collider.gameObject.name == _target.name) {
+										return true;
+								}
+						}
+						offset += sweepTestResolution;
 				}
-				offset += sweepTestResolution;
-			}
-			return sightContact;
+				return sightContact;
 		}
-	/*
+		/*
 		public bool CheckLineOfSite (GameObject resource)
 		{
 //				Vector3 minPositionCheck = resource.transform.position.x 

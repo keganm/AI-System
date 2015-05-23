@@ -33,7 +33,7 @@ public class AIMovement : MonoBehaviour
 
 		//Search Agent Movement Variables
 		Quaternion lastRotation;
-		public AIResourceTarget resourceTarget;
+		public AIResourceManager resourceTarget;
 
 		/// <summary>
 		/// Setup connections and components
@@ -51,7 +51,7 @@ public class AIMovement : MonoBehaviour
 				velocityMultiplier = 1.0f / nav.speed * 2f;
 		}
 
-		public void Init (AIResourceTarget _target, AIGridController _controller)
+		public void Init (AIResourceManager _target, AIGridController _controller)
 		{
 				resourceTarget = _target;
 				gridController = _controller;
