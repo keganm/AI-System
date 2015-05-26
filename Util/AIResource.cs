@@ -26,8 +26,10 @@ public class AIResource : MonoBehaviour
 
 		void Start ()
 		{
-				mat = this.GetComponent<MeshRenderer> ().material;
-				initialColor = mat.color;
+			if (this.GetComponent<MeshRenderer> ()) {
+						mat = this.GetComponent<MeshRenderer> ().material;
+						initialColor = mat.color;
+				}
 		}
 	
 		/// <summary>
@@ -48,7 +50,8 @@ public class AIResource : MonoBehaviour
 						resourceAvailability = 0;
 				if (resourceAvailability > 1)
 						resourceAvailability = 1;
-		
+
+		if(mat != null)
 				mat.color = initialColor * resourceAvailability;
 		}
 

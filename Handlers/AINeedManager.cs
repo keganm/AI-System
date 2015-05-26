@@ -16,8 +16,12 @@ public class AINeedManager : MonoBehaviour
 		public List<AINeed> needList = new List<AINeed> ();
 		public List<string> neededResources = new List<string> ();
 		public float[] neededValues;
+
+		private float averageNeed = 0f;
 	
 		AIResourceManager resourceManager;
+
+		NavMeshAgent navAgent;
 
 		public AINeedManager ()
 		{
@@ -71,13 +75,25 @@ public class AINeedManager : MonoBehaviour
 		}
 
 		/// <summary>
+		/// Returns normalized total of all needs.
+		/// </summary>
+		/// <returns>The need total.</returns>
+		public float GetNeedTotal()
+		{
+				return averageNeed;
+		}
+
+		/// <summary>
 		/// Update needs in list, and add to needResources if inNeed.
 		/// </summary>
 		public void Update ()
 		{
+				averageNeed = 0f;
 				foreach (AINeed need in needList) {
 						if(need.UpdateNeed ())
 							resourceManager.BuildResourceTargets();
+			
+						averageNeed += need.current;
 
 						//Add need to needed list or remove it
 						if (need.inNeed) {
@@ -86,6 +102,8 @@ public class AINeedManager : MonoBehaviour
 								RemoveNeededResource (need.resource);
 						}
 				}
+		
+				averageNeed /= (float)AIEnumeration.ResourceTypeCount;
 		}
 
 		/// <summary>

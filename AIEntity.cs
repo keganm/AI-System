@@ -42,7 +42,7 @@ public class AIEntity : MonoBehaviour
 		/// AIMovement - handles instances interaction with NavMesh and AIGridManager
 		/// AIAwareness - handles instances learning mechanism of resources in environment
 		/// </summary>
-		void Start ()
+		void Awake ()
 		{
 
 				//Create or connect to Main sub classes
@@ -69,6 +69,17 @@ public class AIEntity : MonoBehaviour
 		
 				ResetInitialVariables ();
 		}
+		
+		/// <summary>
+		/// Update this instance.
+		/// </summary>
+		void Update ()
+		{
+				//Check current resources of AI
+				CheckCurrentResource ();
+				//Update needs in AI
+				needManager.Update ();
+		}
 
 		/// <summary>
 		/// Create or get and return a component
@@ -78,10 +89,10 @@ public class AIEntity : MonoBehaviour
 		where T : UnityEngine.Component, new()
 		{
 				//Create or connect to Main sub classes
-			if (!this.transform.gameObject.GetComponent<T> ())
-					return this.transform.gameObject.AddComponent<T> ();
+				if (!this.transform.gameObject.GetComponent<T> ())
+						return this.transform.gameObject.AddComponent<T> ();
 				else
-					return this.transform.GetComponent<T> ();
+						return this.transform.GetComponent<T> ();
 			
 		}
 
@@ -95,15 +106,6 @@ public class AIEntity : MonoBehaviour
 				movement.trackingState = AIEnumeration.Tracking.Aimless;
 
 				needManager.Reset ();
-		}
-
-		/// <summary>
-		/// Update this instance.
-		/// </summary>
-		void Update ()
-		{
-				CheckCurrentResource ();
-				UpdateNeeds ();
 		}
 
 		/// <summary>
@@ -143,34 +145,20 @@ public class AIEntity : MonoBehaviour
 		}
 
 		/// <summary>
-		/// Updates the needs, and bridge with movement if needed.
-		/// </summary>
-		void UpdateNeeds ()
-		{
-				needManager.Update ();	
-
-				if (needManager.neededResources.Count > 0) {
-						//resourceManager.SearchForResource (needManager, needsResearch);
-			//resourceManager.BuildResourceTargets();
-				}
-		}
-
-		/// <summary>
 		/// Starts the refill.
 		/// Called from AIResourceHandler
 		/// </summary>
 		/// <param name="collision">resource collision</param>
 		public void StartRefill (GameObject collision)
 		{
-		if (collision.name == "OtherEntityCollision") {
-						AITraitManager otherAI = collision.GetComponentInParent<AITraitManager> ();
-						if (otherAI != null) {
-								traitManager.MergePersonalities (otherAI);
+				if (collision.GetComponent<AIResource> ()) {
+						currentResources.Add (collision);
+						foreach (AINeed need in needManager.needList) {
+								if (collision.tag == need.resource)
+										need.refilling = true;
+
 						}
 				}
-			
-				if (!currentResources.Contains (collision))
-						currentResources.Add (collision);
 		}
 
 		/// <summary>
@@ -193,16 +181,6 @@ public class AIEntity : MonoBehaviour
 				}
 		}
 
-	public void AddNewEntity(GameObject entity)
-	{
-
-		}
-
-	public void RemoveEntity(GameObject entity)
-	{
-
-		}
-
 }
 
 /** Potential AI modification approaches
@@ -211,15 +189,6 @@ public class AIEntity : MonoBehaviour
  * following establishment of 'home' begin a venturing outward behaviour (similar to wander now)
  * 
  * Integrate possession of resources in some way ( Claiming, aggression, health & violence?)
- * 
- * Modify companionship behaviour to modify in both directions.
- * Dependent on Serialized personality traits.
- ******  Mind – Introverted or Extraverted
- ******  Energy – Intuitive or Observant
- ******  Nature – Thinking or Feeling
- ******  Tactics – Judging or Prospecting
- ******  Identity – Assertive or Turbulent
- * 
  * 
  * Finesse test environment
  * 

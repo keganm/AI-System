@@ -7,8 +7,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-
-
 /// <summary>
 /// Global enumerations for AI.
 /// </summary>
@@ -53,8 +51,8 @@ public static class AIEnumeration
 		Identity
 	};
 	
-	public const int ReactionTypes = 3;
-	public enum Reaction
+	public const int ReactionTypeCount = 3;
+	public enum ReactionType
 	{
 		Negative,
 		Neutral,
@@ -68,6 +66,7 @@ public static class AIEnumeration
 /// </summary>
 public static class AIInitialVariables
 {
+
 		//Needs
 		public static Dictionary<AIEnumeration.ResourceType, AINeed> needDictionary = new Dictionary<AIEnumeration.ResourceType, AINeed> (){
 				{AIEnumeration.ResourceType.Food, new AINeed("Food", 0f, 0.0001f, 0.01f)},
@@ -85,14 +84,20 @@ public static class AIInitialVariables
 				{AIEnumeration.TraitType.Tactics, new AITrait(AIEnumeration.TraitType.Tactics, "Tactics", -1f, 0f)},
 				{AIEnumeration.TraitType.Identity, new AITrait(AIEnumeration.TraitType.Identity, "Identity", -1f, 0f)},
 		};
-
+		
 
 		//Behaviours
 		public static float wanderIncrease = 0.01f;
 
 		//Sight test variables
-	
 		public static float sweepTestResolution = 0.2f;
 		public static float minSweepTest = -0.5f;
 		public static float maxSweepTest = 0.5f;
+
+		//Movement variableswaitTimerMax
+		public static float otherAIMovementInfluence = 0.99f;
+		public static int waitTimerMax = 200;
+		public static float navStopSmoothness = 0.8f;
+		public static float navSpeedBase = 1f;
+		public static float navSpeedMulti = 5f;
 }

@@ -13,9 +13,11 @@ using System.Collections.Generic;
 /// </summary>
 public class AIAwareness : MonoBehaviour
 {
+		AIEntity parentEntity = null;
+
 		Dictionary<string, List<GameObject>> resourceDictionary = new Dictionary<string, List<GameObject>> ();
-		
-	public List<AIEntity> entityList = new List<AIEntity> ();
+		Dictionary<AIEntity, AIEnumeration.ReactionType> reactionLookup = new Dictionary<AIEntity, AIEnumeration.ReactionType> ();
+		public List<AIEntity> entityList = new List<AIEntity> ();
 		public int entityProximityCount = 0;
 
 
@@ -48,6 +50,38 @@ public class AIAwareness : MonoBehaviour
 
 				return tmp;
 		}
+		
+		/// <summary>
+		/// Sets the reaction lookup for passed entity.
+		/// </summary>
+		/// <param name="_entity">Other AI entity.</param>
+		/// <param name="_reaction">Reaction between AI.</param>
+		public void SetReactionLookup (AIEntity _entity, AIEnumeration.ReactionType _reaction)
+		{
+				reactionLookup [_entity] = _reaction;
+		}
+
+		/// <summary>
+		/// Gets the reaction lookup of a particular Entity.
+		/// </summary>
+		/// <returns>The reaction or neutral if not found.</returns>
+		/// <param name="_entity">Entity to Get reaction.</param>
+		public AIEnumeration.ReactionType GetReactionLookup (AIEntity _entity)
+		{
+				if (reactionLookup.ContainsKey (_entity))
+						return reactionLookup [_entity];
+				else
+						return AIEnumeration.ReactionType.Neutral;
+		}
+
+		/// <summary>
+		/// Returns the Lookup dictionary of reactions.
+		/// </summary>
+		/// <returns>The reaction lookup.</returns>
+		public Dictionary<AIEntity, AIEnumeration.ReactionType> GetReactionLookup ()
+		{
+				return reactionLookup;
+		}
 
 		/// <summary>
 		/// Checks to see if the AI knows about the resource or can see it
@@ -74,19 +108,25 @@ public class AIAwareness : MonoBehaviour
 
 		public void AddEntity (Collider other)
 		{
-		AIEntity otherAI = other.transform.GetComponentInParent<AIEntity>();
-		if (otherAI == null)
-			return;
+				if (parentEntity == null)
+						parentEntity = this.GetComponent<AIEntity> ();
+
+				AIEntity otherAI = other.transform.GetComponentInParent<AIEntity> ();
+				if (otherAI == null)
+						return;
 				//Debug.Log ("Adding Entity");
 				entityProximityCount++;
 
-		bool alreadyExists = false;
-		for (int i = 0; i < entityList.Count; i++) {
-			if (entityList [i] == otherAI)
+				bool alreadyExists = false;
+				for (int i = 0; i < entityList.Count; i++) {
+						if (entityList [i] == otherAI)
 								return;
 				}
-		if (!alreadyExists)
-			entityList.Add (otherAI);
+				if (!alreadyExists)
+						entityList.Add (otherAI);
+
+				SetReactionLookup(otherAI, parentEntity.traitManager.MergePersonalities(otherAI.traitManager));
+
 		}
 
 		public void RemoveEntity (Collider other)
@@ -103,12 +143,14 @@ public class AIAwareness : MonoBehaviour
 				}
 		}
 
-
 		public void AddResource (Collider other)
 		{
 				if (other.gameObject == this.gameObject)
 						return;
 				string res = other.tag;
+				if (res == AIInitialVariables.needDictionary [AIEnumeration.ResourceType.Companionship].resource) 
+						return;
+				
 				//Debug.Log ("Adding Resource: " + res);
 				if (!resourceDictionary.ContainsKey (res)) {
 						resourceDictionary [res] = new List<GameObject> ();
@@ -123,16 +165,5 @@ public class AIAwareness : MonoBehaviour
 		
 				if (!alreadyInList)
 						resourceDictionary [res].Add (other.gameObject);
-		}
-	
-		void OnTriggerEnter (Collider other)
-		{
-
-
-		}
-
-		void OnTriggerExit (Collider other)
-		{
-
 		}
 }

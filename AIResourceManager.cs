@@ -25,7 +25,7 @@ public class AIResourceManager : MonoBehaviour
 						return (string.Format ("{0},{1}", gameObject.name, distance));
 				}
 		}
-
+		AIEntity parent;
 		NavMeshAgent nav;
 		AIMovement movement;
 		AIAwareness awareness;
@@ -33,9 +33,6 @@ public class AIResourceManager : MonoBehaviour
 		public GameObject currentTarget;
 		public string targetNeed = "";
 		public string targetResource = "";
-		public bool isWaiting = false;
-		int wait;
-		public int waitTime = 100;
 		public List<GameObject>resourceTargets = new List<GameObject> ();
 		static float sweepTestResolution = AIInitialVariables.sweepTestResolution;
 		static float minSweepTest = AIInitialVariables.minSweepTest;
@@ -44,7 +41,8 @@ public class AIResourceManager : MonoBehaviour
 
 		// Use this for initialization
 		void Awake ()
-		{
+		{		
+				parent = this.GetComponent<AIEntity> ();
 				nav = this.GetComponent<NavMeshAgent> ();
 				movement = this.GetComponent<AIMovement> ();
 				awareness = this.GetComponent<AIAwareness> ();
@@ -54,47 +52,25 @@ public class AIResourceManager : MonoBehaviour
 		// Update is called once per frame
 		void Update ()
 		{
-				if (isWaiting) {
-						nav.Stop ();
-						wait++;
-						if (wait > waitTime) {
-								wait = 0;
-								nav.Resume ();
-								isWaiting = false;
-						}
-				}
-
-				if (movement.trackingState == AIEnumeration.Tracking.Searching) {
-						//if there are no resources move to the next resource available in the list
-						if (!SightCheckTarget ()) {
-								if (resourceTargets.Count <= 1) {
-										movement.trackingState = AIEnumeration.Tracking.Aimless;
-										return;
-								}
+				if (currentTarget != null) {
+						if (!SightCheckTarget () || nav.isPathStale)
 								RetargetResource ();
-						}
+						
 
-						//if something in the path finding needs retargetting
-						if (nav.isPathStale) {
-								if (resourceTargets.Count <= 1) {
-										movement.trackingState = AIEnumeration.Tracking.Aimless;
-										return;
-								}
-								RetargetResource ();
-						}
-				}
-
-				if (targetNeed == AIInitialVariables.needDictionary [AIEnumeration.ResourceType.Companionship].resource)
-						nav.SetDestination (currentTarget.transform.position);
-
-				if (!needManager.neededResources.Contains (targetNeed)) {
-						currentTarget = null;
-						targetNeed = "";
-						targetResource = "";
-						if(needManager.neededResources.Count > 0)
-							BuildResourceTargets();
-				}
+						if (targetNeed == AIInitialVariables.needDictionary [AIEnumeration.ResourceType.Companionship].resource)
+								SetNavToCurrentTarget ();
 				
+
+						if (!needManager.neededResources.Contains (targetNeed)) {
+								currentTarget = null;
+								targetNeed = "";
+								targetResource = "";
+								if (needManager.neededResources.Count > 0)
+										BuildResourceTargets ();
+						}
+				} else {
+						CheckForCloserResource ();
+				}
 		}
 
 	
@@ -123,7 +99,6 @@ public class AIResourceManager : MonoBehaviour
 			
 						//Return false if we can see that there no resources are available in the target
 						if (!res.ResourceAvailable ()) {
-								isWaiting = true;
 								return false;
 						} else
 								return true;
@@ -138,14 +113,7 @@ public class AIResourceManager : MonoBehaviour
 		/// </summary>
 		void RetargetResource ()
 		{
-		BuildResourceTargets ();
-		return;
-				if (nav.SetDestination (resourceTargets [0].transform.position)) {
-						currentTarget = resourceTargets [0];
-						return;
-				} else {
-						ShiftResourceTargets ();
-				}
+				BuildResourceTargets ();
 				
 		}
 
@@ -160,8 +128,32 @@ public class AIResourceManager : MonoBehaviour
 				RetargetResource ();
 		}
 
+		public bool CheckForCloserResource ()
+		{
+				List<GameObject> visibleResources = LookForResources (needManager.neededResources);
+				if (visibleResources.Count <= 1)
+						return false;
+				float currentDistance = -1f;
+				if (currentTarget != null)
+						currentDistance = Vector3.Distance (this.transform.position, currentTarget.transform.position);
+
+				visibleResources = SortListByDistance (visibleResources);
+				float closestDistance = Vector3.Distance (this.transform.position, visibleResources [0].transform.position);
+				if (closestDistance < currentDistance || currentDistance == -1f) {
+						currentTarget = visibleResources [0];
+						targetResource = visibleResources [0].transform.parent.name;
+						targetNeed = AIInitialVariables.needDictionary [visibleResources [0].GetComponentInParent<AIResource> ().resourceType].resource;
+						SetNavToCurrentTarget ();
+				}
+				return true;
+		}
+
 		public bool BuildResourceTargets ()
 		{
+				//Set time to wait based on AIs Tactics trait (Judging or Prospecting)
+				float timeToWait = ((1f - parent.traitManager.GetNormalizedTrait (AIEnumeration.TraitType.Tactics)) * 0.5f + 0.5f) * (float)AIInitialVariables.waitTimerMax;
+				parent.movement.StartWait (Mathf.FloorToInt( timeToWait ));
+
 				float[] needValues = new float[needManager.needList.Count];
 				string[] needResources = new string[needManager.needList.Count];
 				int targetNeedIndex = -1;
@@ -187,7 +179,7 @@ public class AIResourceManager : MonoBehaviour
 				resourceTargets.AddRange (awareness.GetResourceList (targetNeed));
 
 				if (resourceTargets.Count == 0) {
-						Debug.Log ("Didn't find any targets for the resource");
+						//Debug.Log ("Didn't find any targets for the resource");
 						movement.trackingState = AIEnumeration.Tracking.Aimless;
 						return false;
 				}
@@ -200,13 +192,18 @@ public class AIResourceManager : MonoBehaviour
 						return false;
 				}
 				targetResource = resourceTargets [targetResourceIndex].transform.parent.name;
-				Debug.Log ("Target Found: " + targetResource);
+				//Debug.Log ("Target Found: " + targetResource);
 				currentTarget = resourceTargets [targetResourceIndex];
-				nav.SetDestination (currentTarget.transform.position + (Random.insideUnitSphere * currentTarget.GetComponent<Collider> ().bounds.size.magnitude * 0.25f));
+				SetNavToCurrentTarget ();
 
 				return true;
 		}
-
+		
+		private bool SetNavToCurrentTarget ()
+		{
+		
+				return nav.SetDestination (currentTarget.transform.position + (Random.insideUnitSphere * currentTarget.GetComponent<Collider> ().bounds.size.magnitude * 0.25f));
+		}
 
 
 		/// <summary>
@@ -215,24 +212,11 @@ public class AIResourceManager : MonoBehaviour
 		/// <param name="resources">Resources.</param>
 		/// <param name="redoSearch">If set to <c>true</c> redo search.</param>
 		public void SearchForResource (AINeedManager _needManager, bool redoSearch)
-		{
-				if (isWaiting)
-						return;
+		{		
+				//Set time to wait based on AIs Tactics trait (Judging or Prospecting)
+				float timeToWait = ((1f - parent.traitManager.GetNormalizedTrait (AIEnumeration.TraitType.Tactics)) * 0.5f + 0.5f) * (float)AIInitialVariables.waitTimerMax;
+				parent.movement.StartWait (Mathf.FloorToInt( timeToWait ));
 
-				//Testing probability remove here to marked comment line
-		
-				float[] needValues = new float[_needManager.needList.Count];
-				string[] needs = new string[_needManager.needList.Count];
-				string n;
-				if (_needManager.GetNeededResources (ref needValues, ref needs)) {
-						int chosen = -1;
-						float topValue = 0f;
-						if (AIProbabilitySolver.GetResultIndex (ref chosen, ref topValue, needValues))
-								n = needs [chosen];
-						//Debug.Log(needs[chosen] + " value: " + topValue);
-				}
-
-				//------------------------------------Remove to here
 				List<string> resources = _needManager.neededResources;
 				if (resourceTargets.Count == 0 || redoSearch) {
 						resourceTargets.Clear ();
@@ -449,7 +433,7 @@ public class AIResourceManager : MonoBehaviour
 				while (offset <= maxSweepTest) {
 						r.direction = new Vector3 (startDirection + offset, r.direction.y, r.direction.z);
 						//For Testing
-						Debug.DrawRay (r.origin, r.direction);
+						//Debug.DrawRay (r.origin, r.direction);
 				
 				
 						if (_maxDistance == -1)

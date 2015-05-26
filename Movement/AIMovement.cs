@@ -13,6 +13,8 @@ using System.Collections.Generic;
 /// </summary>
 public class AIMovement : MonoBehaviour
 {
+		AIEntity parent;
+
 		//Tracking Variables
 		public AIEnumeration.Tracking trackingState;
 		NavMeshAgent nav;
@@ -23,6 +25,9 @@ public class AIMovement : MonoBehaviour
 		float avgVelocity = 0.0f;
 		float velocityMultiplier = 1.0f;
 		Animator anim;
+		
+		public int maxWaitTimer = AIInitialVariables.waitTimerMax;
+		public int waitTimer = AIInitialVariables.waitTimerMax + 1;
 
 		//Wander Behaviour Variables
 		Vector3 target;
@@ -55,6 +60,7 @@ public class AIMovement : MonoBehaviour
 		{
 				resourceTarget = _target;
 				gridController = _controller;
+				parent = this.GetComponent<AIEntity> ();
 		}
 
 		/// <summary>
@@ -74,13 +80,51 @@ public class AIMovement : MonoBehaviour
 				//Modify movement velocity
 				avgVelocity = (avgVelocity * (1.0f - velocitySmoothness)) + (nav.velocity.magnitude * velocitySmoothness);
 				anim.SetFloat ("Forward", avgVelocity * velocityMultiplier);
+				
+				//TODO: Create a more organic but similar approach (Possibly a more predictive test process?)
+				if (Random.value > parent.traitManager.GetStopAndLookAroundProbability () && !IsWaiting())
+						StartWait();
+
+				waitTimer++;
+				if (waitTimer < AIInitialVariables.waitTimerMax)
+						nav.velocity *= AIInitialVariables.navStopSmoothness;
+
+				nav.speed = parent.needManager.GetNeedTotal() * AIInitialVariables.navSpeedMulti + AIInitialVariables.navSpeedBase;
+		}
+		
+		/// <summary>
+		/// Determines whether this instance is waiting.
+		/// </summary>
+		/// <returns><c>true</c> if this instance is waiting; otherwise, <c>false</c>.</returns>
+		public bool IsWaiting()
+		{
+				return waitTimer < AIInitialVariables.waitTimerMax;
+		}
+		
+		/// <summary>
+		/// Starts the wait.
+		/// </summary>
+		public void StartWait()
+		{
+				maxWaitTimer = AIInitialVariables.waitTimerMax;
+				waitTimer = 0;
+		}
+
+		/// <summary>
+		/// Starts the wait for specified time.
+		/// </summary>
+		/// <param name="_waitTime">Wait time.</param>
+		public void StartWait(int _waitTime)
+		{
+				maxWaitTimer = _waitTime;
+				waitTimer = 0;
 		}
 
 		/// <summary>
 		/// Update navMesh movement depending on TrackingState
 		/// </summary>
 		void UpdateMovement ()
-		{
+		{		
 				//AI is refilling so make the AI hold
 				if (trackingState == AIEnumeration.Tracking.Refilling) {
 						resourceTarget.ClearTargetList ();
@@ -88,10 +132,59 @@ public class AIMovement : MonoBehaviour
 						nav.SetPath (path);
 						return;
 				}
+
 				//Tracking is aimless so AI explores
 				if (trackingState == AIEnumeration.Tracking.Aimless) {
 						Wander ();
 				}
+		}
+
+		/// <summary>
+		/// Tests the other AI to modify movement.
+		/// </summary>
+		void TestOtherAI()
+		{
+				int eCount = 0;
+				int eCountMax = 100;
+				float maintain = AIInitialVariables.otherAIMovementInfluence - ((1f - parent.needManager.GetNeedTotal()) * 0.1f);
+				float drift = 1f - maintain;
+			
+				foreach (AIEntity entity in parent.awareness.entityList) {
+					AIEnumeration.ReactionType reaction = parent.awareness.GetReactionLookup(entity);
+					if (reaction != AIEnumeration.ReactionType.Neutral)
+						EntityShift (entity.gameObject, reaction, maintain, drift);
+					
+					eCount++;
+					if(eCount > eCountMax)
+						return;
+				}
+		}
+	
+		/// <summary>
+		/// Shifts Current movement towards or away from other entities.
+		/// </summary>
+		/// <param name="_target">Other AI GameObject.</param>
+		/// <param name="_reaction">Reaction between two the AI.</param>
+		/// <param name="_maintain">Maintain direction weight.</param>
+		/// <param name="_drift">Chase direction weight.</param>
+		void EntityShift (GameObject _target, AIEnumeration.ReactionType _reaction, float _maintain, float _drift)
+		{
+				float direction = 0f;
+				switch (_reaction) {
+				case AIEnumeration.ReactionType.Negative:
+						direction = -1f;
+						break;
+				case AIEnumeration.ReactionType.Positive:
+						direction = 1f;
+						break;
+				default:
+						return;
+				}
+
+				Vector3 newDirection = _target.transform.position - nav.nextPosition;
+				newDirection = newDirection * direction;
+				//nav.velocity = newDirection;
+				nav.nextPosition = nav.nextPosition * _maintain + newDirection * _drift;
 		}
 
 		/// <summary>

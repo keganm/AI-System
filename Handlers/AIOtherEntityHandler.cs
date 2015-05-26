@@ -28,7 +28,7 @@ public class AIOtherEntityHandler : MonoBehaviour
 				if (testEntity != null) {
 						count++;
 						parent.awareness.AddEntity (other);
-						parent.AddNewEntity (other.gameObject);
+						//parent.AddNewEntity (other.gameObject);
 				}
 				
 		}
@@ -46,7 +46,7 @@ public class AIOtherEntityHandler : MonoBehaviour
 				if (testEntity != null) {
 						count--;
 						parent.awareness.RemoveEntity (other);
-						parent.RemoveEntity (other.gameObject);
+						//parent.RemoveEntity (other.gameObject);
 				}
 		}
 }
