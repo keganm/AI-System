@@ -33,6 +33,7 @@ public class AIEntity : MonoBehaviour
 		public bool needsResearch = false;
 		public List<GameObject> currentResources = new List<GameObject> ();
 
+
 		/// <summary>
 		/// Start this instance.
 		/// Finds or creates other component classes
@@ -52,7 +53,7 @@ public class AIEntity : MonoBehaviour
 				resourceManager = GetOrAddComponent<AIResourceManager> ();
 				gridController = GetOrAddComponent<AIGridController> ();
 				traitManager = GetOrAddComponent<AITraitManager> ();
-
+				
 				
 				//Pass ResourceTarget and GridController to AIMovement
 				movement.Init (resourceManager, gridController);
@@ -94,6 +95,12 @@ public class AIEntity : MonoBehaviour
 				else
 						return this.transform.GetComponent<T> ();
 			
+		}
+
+		public void SetGridController(AIGridController other)
+		{
+			gridController.CopyGridController (other);
+			movement.SetGridController (gridController);
 		}
 
 		/// <summary>

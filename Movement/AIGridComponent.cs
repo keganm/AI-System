@@ -33,6 +33,19 @@ public class AIGridComponent
 		}
 
 		/// <summary>
+		/// Copies the grid component.
+		/// </summary>
+		/// <param name="other">Other Gridcomponent.</param>
+		public void CopyGridComponent(AIGridComponent other)
+		{
+				Center = other.Center;
+				SearchSize = other.SearchSize;
+				SearchCount = other.SearchCount;
+				MaxSearchCount = other.MaxSearchCount;
+				FullyExplored = other.FullyExplored;
+		}
+
+		/// <summary>
 		/// Center point converted to 3D Vector.
 		/// </summary>
 		/// <returns>The center Vector3.</returns>

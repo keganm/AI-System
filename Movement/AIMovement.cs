@@ -49,7 +49,7 @@ public class AIMovement : MonoBehaviour
 				path = new NavMeshPath ();
 
 				//TODO:Unify building the grid
-				gridController.BuildGrid (NavMesh.CalculateTriangulation ().vertices);
+				//gridController.BuildGrid (NavMesh.CalculateTriangulation ().vertices);
 
 				anim = this.GetComponentInChildren<Animator> ();
 
@@ -59,9 +59,17 @@ public class AIMovement : MonoBehaviour
 		public void Init (AIResourceManager _target, AIGridController _controller)
 		{
 				resourceTarget = _target;
-				gridController = _controller;
+				//gridController = _controller;
 				parent = this.GetComponent<AIEntity> ();
+				//gridController.BuildGrid (NavMesh.CalculateTriangulation ().vertices);
 		}
+
+		public void SetGridController(AIGridController other)
+		{
+		gridController = other;
+				//gridController.CopyGridController (other);
+		}
+
 
 		/// <summary>
 		/// Update movement and modify navAgent movement.
@@ -205,7 +213,7 @@ public class AIMovement : MonoBehaviour
 		/// Otherwise will use the exploration grid to explore the environment
 		/// </summary>
 		void ReTarget ()
-		{
+	{
 				//Bypass GridController if there are needed resources
 				if (this.gameObject.GetComponent<AINeedManager> ().neededResources.Count >= 1) {
 						bypassGridController ();

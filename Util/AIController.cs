@@ -27,11 +27,20 @@ public class AIController : MonoBehaviour
 		public GameObject buttonprefab;
 		public int currentEntity = 0;
 
+	AIGridController mainGridController;
+
+
 		/// <summary>
 		/// Start this instance, setup gui, and connect to AI entitys.
 		/// </summary>
 		void Start ()
 		{
+		
+
+		mainGridController = this.transform.gameObject.AddComponent<AIGridController> ();
+		mainGridController.BuildGrid(NavMesh.CalculateTriangulation ().vertices);
+
+
 				//Setup GUI
 				GameObject debugPanel = Instantiate<GameObject> (debugpanel);
 				debugPanel.transform.SetParent (canvas.transform);
@@ -50,6 +59,12 @@ public class AIController : MonoBehaviour
 				Debug.Log ("Found " + aiEntitys.Count + " AI Entitys");
 
 				CreateUIMenu ();
+				
+				foreach (GameObject ai in aiEntitys) {
+
+			ai.GetComponent<AIEntity>().SetGridController (mainGridController);
+				}
+
 		}
 
 		/// <summary>
