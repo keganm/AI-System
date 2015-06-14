@@ -1,4 +1,5 @@
 # AI-System
+Refer to AITest.mov for an example of behavior
 
 Initial Creation of an AI System in Unity.
 AI units Have basic needs that drain overtime.
@@ -13,8 +14,12 @@ One need is companionship which is available from other AI, and will not be reme
 Personalities of AI entities change when near other AI based partially on the current AIs Age and Identity
 Change will also be determined by the compatability between the two interacting AI.
 
-Future Implementations:
-Modify the movement mechanism to increase natural movement.
-Create personality characteristics and modify AI interactions based on that.
+Personality between AI now modifies movement behavior (pull an push influenced by the need of the entity)
+
+Todo:
+Modify the movement mechanism to increase natural movement. (Priority) 
+Further the dynamics of the personality behavior (Attack other AI, take ownership of areas?)
+Bypass or modify navigation so more predictive behaviors can be implemented 
+Must maintain high efficiency (Behavioral LOD or culling?)
 
 (Will update with more information later)
