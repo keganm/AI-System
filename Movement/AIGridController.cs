@@ -113,19 +113,19 @@ public class AIGridController : MonoBehaviour
 		/// Copies the grid controller.
 		/// </summary>
 		/// <param name="other">Other Grid Controller.</param>
-		public void CopyGridController(AIGridController other)
+		public void CopyGridController (AIGridController other)
 		{
 				gridResolution = other.gridResolution;
 				navmeshBounds = other.navmeshBounds;
 				countExplored = other.countExplored;
 				gridFullyExplored = other.gridFullyExplored;
 
-				fullGrid = new AIGridComponent(Vector2.zero,-1);
+				fullGrid = new AIGridComponent (Vector2.zero, -1);
 				fullGrid.CopyGridComponent (other.fullGrid);
 				gridComponents = new AIGridComponent [other.gridComponents.Length];
 				for (int i = 0; i < other.gridComponents.Length; i++) {
-					gridComponents[i] = new AIGridComponent(Vector2.zero,-1);
-					gridComponents[i].CopyGridComponent(other.gridComponents[i]);
+						gridComponents [i] = new AIGridComponent (Vector2.zero, -1);
+						gridComponents [i].CopyGridComponent (other.gridComponents [i]);
 				}
 
 				SetStartGridPoint ();
@@ -134,7 +134,7 @@ public class AIGridController : MonoBehaviour
 		/// <summary>
 		/// Sets the starting grid point.
 		/// </summary>
-		void SetStartGridPoint()
+		void SetStartGridPoint ()
 		{
 				//Start with random grid target
 				//TODO:Base this on start point?

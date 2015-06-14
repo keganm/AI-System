@@ -26,8 +26,7 @@ public class AIController : MonoBehaviour
 		public GameObject debugpanel;
 		public GameObject buttonprefab;
 		public int currentEntity = 0;
-
-	AIGridController mainGridController;
+		AIGridController mainGridController;
 
 
 		/// <summary>
@@ -37,8 +36,8 @@ public class AIController : MonoBehaviour
 		{
 		
 
-		mainGridController = this.transform.gameObject.AddComponent<AIGridController> ();
-		mainGridController.BuildGrid(NavMesh.CalculateTriangulation ().vertices);
+				mainGridController = this.transform.gameObject.AddComponent<AIGridController> ();
+				mainGridController.BuildGrid (NavMesh.CalculateTriangulation ().vertices);
 
 
 				//Setup GUI
@@ -62,7 +61,7 @@ public class AIController : MonoBehaviour
 				
 				foreach (GameObject ai in aiEntitys) {
 
-			ai.GetComponent<AIEntity>().SetGridController (mainGridController);
+						ai.GetComponent<AIEntity> ().SetGridController (mainGridController);
 				}
 
 		}

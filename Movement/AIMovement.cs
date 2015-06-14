@@ -97,6 +97,8 @@ public class AIMovement : MonoBehaviour
 				if (waitTimer < AIInitialVariables.waitTimerMax)
 						nav.velocity *= AIInitialVariables.navStopSmoothness;
 
+		TestOtherAI ();
+
 				nav.speed = parent.needManager.GetNeedTotal() * AIInitialVariables.navSpeedMulti + AIInitialVariables.navSpeedBase;
 		}
 		
@@ -146,16 +148,16 @@ public class AIMovement : MonoBehaviour
 						Wander ();
 				}
 		}
-
+	public float drift;
 		/// <summary>
 		/// Tests the other AI to modify movement.
 		/// </summary>
 		void TestOtherAI()
 		{
 				int eCount = 0;
-				int eCountMax = 100;
-				float maintain = AIInitialVariables.otherAIMovementInfluence - ((1f - parent.needManager.GetNeedTotal()) * 0.1f);
-				float drift = 1f - maintain;
+				int eCountMax = 10;
+				 drift = (1f - parent.needManager.GetNeedTotal()) * AIInitialVariables.otherAIMovementInfluence;
+				float maintain = 1f - drift;
 			
 				foreach (AIEntity entity in parent.awareness.entityList) {
 					AIEnumeration.ReactionType reaction = parent.awareness.GetReactionLookup(entity);
@@ -180,19 +182,19 @@ public class AIMovement : MonoBehaviour
 				float direction = 0f;
 				switch (_reaction) {
 				case AIEnumeration.ReactionType.Negative:
-						direction = -1f;
+						direction = -1f * AIInitialVariables.otherAIDirectionWeight;
 						break;
 				case AIEnumeration.ReactionType.Positive:
-						direction = 1f;
+						direction = 1f * AIInitialVariables.otherAIDirectionWeight;
 						break;
 				default:
 						return;
 				}
 
-				Vector3 newDirection = _target.transform.position - nav.nextPosition;
-				newDirection = newDirection * direction;
-				//nav.velocity = newDirection;
-				nav.nextPosition = nav.nextPosition * _maintain + newDirection * _drift;
+				//TODO: Fit this in more smoothly with nav equations, or try modifying path instead
+				Vector3 newDirection = (_target.transform.position - this.transform.position) * direction;
+				Vector3 newDesiredVelocity = (nav.desiredVelocity * _maintain) + (newDirection * _drift);
+				nav.velocity = (newDesiredVelocity * 0.5f) + (nav.velocity * 0.5f);
 		}
 
 		/// <summary>

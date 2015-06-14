@@ -145,24 +145,3 @@ public class AITraitManager : MonoBehaviour
 				return traits [_trait].value * 0.5f + 0.5f;
 		}
 }
-
-/**
- * 
- * Modify companionship behaviour to modify in both directions.
- * Dependent on Serialized personality traits.
- ******  Mind – Introverted or Extraverted
- ******  Energy – Intuitive or Observant
- ******  Nature – Thinking or Feeling
- ******  Tactics – Judging or Prospecting
- ******  Identity – Assertive or Turbulent
- *
- *
- *Maybe these instead
- *
-	/// Age
-	/// Aggression
-	/// Extraversion
-	/// Focus
-	/// Happiness
-	/// 
- **/

@@ -95,9 +95,10 @@ public static class AIInitialVariables
 		public static float maxSweepTest = 0.5f;
 
 		//Movement variableswaitTimerMax
-		public static float otherAIMovementInfluence = 0.99f;
+		public static float otherAIMovementInfluence = 0.01f;
+		public static float otherAIDirectionWeight = 0.1f;
 		public static int waitTimerMax = 200;
 		public static float navStopSmoothness = 0.8f;
 		public static float navSpeedBase = 1f;
-		public static float navSpeedMulti = 5f;
+		public static float navSpeedMulti = 3f;
 }
